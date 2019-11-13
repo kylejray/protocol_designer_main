@@ -12,12 +12,12 @@ from .potentials import Potential
 
 class System:
 
-    def __init__(self, Protocol, Potential):
-        self.Protocol = Protocol
-        self.Potential = Potential
+    def __init__(self, protocol, potential):
+        self.protocol = protocol
+        self.potential = potential
         self.scale = 1
         msg = "the number of protocol parameters must match the potential"
-        assert len(Protocol.get_params(Protocol.t_i)) == Potential.N_params, msg
+        assert len(self.protocol.get_params(self.protocol.t_i)) == self.potential.N_params, msg
 
     def scale_potential(self, scaling):
         self.scale = scaling
@@ -29,45 +29,45 @@ class System:
         return(U+T)
 
     def get_potential(self, coords, t):
-        params = self.Protocol.get_params(t)
+        params = self.protocol.get_params(t)
         positions = np.transpose(coords[:, :, 0])
 
-        return(self.scale*self.Potential.potential(*positions, params))
+        return(self.scale*self.potential.potential(*positions, params))
 
     def get_external_force(self, coords, t):
-        params = self.Protocol.get_params(t)
+        params = self.protocol.get_params(t)
         positions = np.transpose(coords[:, :, 0])
-        F = np.zeros((len(coords[:, 0, 0]), self.Potential.N_dim))
-        force = self.Potential.external_force(*positions, params)
-        for i in range(0, self.Potential.N_dim):
+        F = np.zeros((len(coords[:, 0, 0]), self.potential.N_dim))
+        force = self.potential.external_force(*positions, params)
+        for i in range(0, self.potential.N_dim):
             F[:, i] = force[i]
 
         return(self.scale*F)
 
     def lattice(self, t, resolution, x_min, x_max, y_min, y_max, axis1=1, axis2=2, slice_values=None):
-        params = self.Protocol.get_params(t)
+        params = self.protocol.get_params(t)
 
-        if self.Potential.N_dim == 2:
+        if self.potential.N_dim == 2:
             x = np.linspace(x_min, x_max, resolution)
             y = np.linspace(y_min, y_max, resolution)
             X, Y = np.meshgrid(x, y)
 
-            U = self.scale*self.Potential.potential(X, Y, params)
+            U = self.scale*self.potential.potential(X, Y, params)
 
             return(U, X, Y)
 
-        if self.Potential.N_dim == 1:
+        if self.potential.N_dim == 1:
             X = np.linspace(x_min, x_max, resolution)
-            U = self.scale*self.Potential.potential(X, params)
+            U = self.scale*self.potential.potential(X, params)
 
             return(U, X)
 
-        if self.Potential.N_dim > 2:
+        if self.potential.N_dim > 2:
             axis1 = axis1-1
             axis2 = axis2-1
 
             if slice_values is None:
-                slice_values = [0] * self.Potential.N_dim
+                slice_values = [0] * self.potential.N_dim
 
             x1 = np.linspace(x_min, x_max, resolution)
             x2 = np.linspace(y_min, y_max, resolution)
@@ -76,12 +76,12 @@ class System:
             slice_list = list(slice_values)
             slice_list[axis1] = X
             slice_list[axis2] = Y
-            U = self.scale*self.Potential.potential(*slice_list, params)
+            U = self.scale*self.potential.potential(*slice_list, params)
 
             return(U, X, Y)
 
     def show_potential(self, t, resolution=100, surface=False, x_min=-2, x_max=2, y_min=-2, y_max=2, contours=50, axis1=1, axis2=2, slice_values=None):
-        if self.Potential.N_dim >= 2:
+        if self.potential.N_dim >= 2:
             U, X, Y = self.lattice(t, resolution, x_min, x_max, y_min, y_max, axis1, axis2, slice_values)
 
             if surface is False:
@@ -103,7 +103,7 @@ class System:
                 ax.text(-.3, -.3, 0, 't={:.2f}'.format(t), horizontalalignment='center', verticalalignment='top', fontsize=12, color='k')
 
                 plt.show()
-        if self.Potential.N_dim == 1:
+        if self.potential.N_dim == 1:
             U, X = self.lattice(t, resolution, x_min, x_max, y_min, y_max)
             fig, ax = plt.subplots()
             ax.plot(X, U)
@@ -111,11 +111,11 @@ class System:
             ax.text(x_min-.1*(x_max-x_min), y_min-.1*(y_max-y_min), 't={:.2f}'.format(t), horizontalalignment='right', verticalalignment='top', fontsize=12, color='k')
 
     def animate_protocol(self, mesh=40, fps=10, frames=50, surface=False, save=False, x_min=-2, x_max=2, y_min=-2, y_max=2, axis1=0, axis2=1, slice_values=None, n_contours=50):
-        t_i = self.Protocol.t_i
-        t_f = self.Protocol.t_f
+        t_i = self.protocol.t_i
+        t_f = self.protocol.t_f
         t = np.linspace(t_i, t_f, frames)
 
-        if self.Potential.N_dim == 1:
+        if self.potential.N_dim == 1:
             U_array = np.zeros((mesh, frames))
             U_array[:, 0], X = self.lattice(t_i, mesh, x_min, x_max, y_min, y_max)
 
@@ -150,7 +150,7 @@ class System:
 
             return(anim)
 
-        if self.Potential.N_dim >= 2:
+        if self.potential.N_dim >= 2:
             U_array = np.zeros((mesh, mesh, frames))
             # T_array=np.zeros((mesh,mesh,frames))
             #

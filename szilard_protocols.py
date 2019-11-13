@@ -1,5 +1,5 @@
 from protocol_designer.protocol import Protocol, Compound_Protocol, sequential_protocol
-from protocol_designer.potentials import Potential, Duffing_2D, BLW, Exp_wells_2D
+from protocol_designer.potentials import Potential, duffing_2D, blw, exp_wells_2D
 from protocol_designer.system import System
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,8 +22,8 @@ NS = 12
 # and 7 parameters
 NP = 7
 # then we create the Compound Protocol (note that default_params is optional, and defaults will be 0 without it)
-D2D_szilard_prot = sequential_protocol(NS, NP, which, non_triv_param, initial_params=Duffing_2D.default_params)
-D2D_szilard = System(D2D_szilard_prot, Duffing_2D)
+d2d_szilard_prot = sequential_protocol(NS, NP, which, non_triv_param, initial_params=duffing_2D.default_params)
+d2d_szilard = System(d2d_szilard_prot, duffing_2D)
 
 ##########################################################
 ##########################################################
@@ -45,8 +45,9 @@ R1 = (0, 0, -1, -1, -1, 0, 0)
 which_p = (1, 2, 3, 4, 5, 8)
 
 ntp = (R0R1, L0L1, L1R1, L0R0, L0, R1)
-BLW_szilard_prot = sequential_protocol(6, 12, which_p, ntp, initial_params=BLW.default_params)
-BLW_szilard = System(BLW_szilard_prot, BLW)
+t = np.linspace(0, 1000, 7)
+blw_szilard_prot = sequential_protocol(6, 12, which_p, ntp, times=t, initial_params=blw.default_params)
+blw_szilard = System(blw_szilard_prot, blw)
 
 ##########################################################
 ##########################################################
@@ -69,8 +70,8 @@ R1 = np.multiply(-1, (0, 0, -1, -1, -1, 0, 0))+1
 which_p = (1, 2, 3, 4, 5, 8)
 
 ntp = (L0L1, R0R1, L0R0, L1R1, L0, R1)
-EW2_szilard_prot = sequential_protocol(6, 16, which_p, ntp, initial_params=Exp_wells_2D.default_params)
-EW2_szilard = System(EW2_szilard_prot, Exp_wells_2D)
+ew2_szilard_prot = sequential_protocol(6, 16, which_p, ntp, times=t, initial_params=exp_wells_2D.default_params)
+ew2_szilard = System(ew2_szilard_prot, exp_wells_2D)
 
 #BLW_szilard.animate_protocol(fps=5, surface=True)
 #D2D_szilard.animate_protocol(fps=5, surface=False)

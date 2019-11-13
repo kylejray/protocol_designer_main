@@ -1,5 +1,5 @@
 from protocol_designer.protocol import Protocol, Compound_Protocol
-from protocol_designer.potentials import Potential, Duffing_2D
+from protocol_designer.potentials import Potential, duffing_2D
 import numpy as np
 import matplotlib.pyplot as plt
 

@@ -34,34 +34,34 @@ coords_5D=2*np.random.random_sample((N,5,2))-1
 import szilard_protocols as zp
 
 #Alec version one with linear coupling
-Duff2D_szilard= zp.D2D_szilard
+duff2D_szilard= zp.d2d_szilard
 #higher couplings, of the form x^2 y and y^2 x
-BLW_szilard= zp.BLW_szilard
+blw_szilard= zp.blw_szilard
 #exponential potential allowing for precise localization
-Exp_szilard=zp.EW2_szilard
+exp_szilard=zp.ew2_szilard
 
 
 
 # +
 
-Duff2D_szilard.show_potential(.2)
-Duff2D_szilard.scale_potential(10)
+duff2D_szilard.show_potential(.2)
+duff2D_szilard.scale_potential(10)
 
-BLW_szilard.show_potential(.2)
+blw_szilard.show_potential(.2)
 
-Exp_szilard.show_potential(.2)
+exp_szilard.show_potential(.2)
 # -
 
-ani = BLW_szilard.animate_protocol()
+ani = blw_szilard.animate_protocol(surface=True)
 HTML(ani.to_jshtml(fps=5))
 
-ani = Duff2D_szilard.animate_protocol(n_contours=100)
+ani = duff2D_szilard.animate_protocol(n_contours=100)
 HTML(ani.to_jshtml(fps=5))
 
-ani = Exp_szilard.animate_protocol(frames=50, surface=False)
+ani = exp_szilard.animate_protocol(frames=50, surface=False)
 HTML(ani.to_jshtml(fps=5))
 
-Exp_szilard.Protocol.show_params()
+exp_szilard.Protocol.show_params()
 
 
 

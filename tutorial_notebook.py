@@ -15,7 +15,7 @@
 
 # +
 from protocol_designer.protocol import Protocol, Compound_Protocol, sequential_protocol
-from protocol_designer.potentials import Potential,BLW,ODV, Duffing_2D
+from protocol_designer.potentials import Potential,blw,odv, duffing_2D
 from protocol_designer.system import System
 import numpy as np 
 
@@ -65,8 +65,6 @@ erase_prot.show_params(which='all')
 # you could also show any subset of parameters by specifying an explicit "which":
 erase_prot.show_params(which=(1,2,7,9))
 
-
-
 # +
 #A compound protocol can give you the substage times
 
@@ -102,7 +100,7 @@ print('final time is:',tilt.t_f)
 #Systems take a protocol as an input, as well as a potential.
 
 #ODV is a predefined potential, so lets just plop it in:
-erase_sys=System(erase_prot,ODV)
+erase_sys=System(erase_prot,odv)
 
 # -
 
@@ -113,19 +111,19 @@ erase_sys=System(erase_prot,ODV)
 #When you define a system it will check if the protocol is compatilbe with the potential.
 
 #you can check information on a potential object:
-ODV.info()
+odv.info()
 
 # -
 
 #BLW is a predefined 2D potential (happens to be a 4 well system).
 # it takes 12 parameters, and our erase protocol is a 12 parameter protocol,
 # so this will work with the erasing protocol. technically any 12 parameter potential would be compatible though.
-BLW.info()
+blw.info()
 
 # +
 #initialize our full system:
 
-erase_sys=System(erase_prot,BLW)
+erase_sys=System(erase_prot,blw)
 # -
 
 
@@ -203,7 +201,7 @@ exp_well=Potential(exp_well_pot,exp_well_force,3,2)
 trivial_system=System(exp_well.trivial_protocol(),exp_well)
 # -
 
-trivial_system.show_potential(.3,x_min=-1,x_max=1,y_min=-1,y_max=1)
+trivial_system.show_potential(.5,x_min=-1,x_max=1,y_min=-1,y_max=1)
 
 # +
 # Generally,  we want make our protocol that will operate on the potential. 
@@ -218,7 +216,7 @@ WSP=Protocol(t,params)
 
 #Finally, we apply the well stretch protocol to the exp_well potential
 well_stretch=System(WSP,exp_well)
-    
+
 
 # +
 #and just to make sure it worked as expected, lets plot it:
@@ -348,10 +346,10 @@ def five_d_sphere_f(x1, x2, x3, x4, x5, params):
 #note that the way it is set up makes really high dimensional potentials kind of annoying to write. 
 #this can be changed if there is reason to.
 
-FDS=Potential(five_d_sphere,five_d_sphere_f,2,5)
+fds=Potential(five_d_sphere,five_d_sphere_f,2,5)
 fds_t=(0,1)
 fds_p=((.5,1.8),(-1,0))
-FDS_sys=System(Protocol(fds_t,fds_p),FDS)
+fds_sys=System(Protocol(fds_t,fds_p),fds)
 
 # +
 #when you call show_potential, we now take a 2-d slice of the potential, 
@@ -360,16 +358,16 @@ FDS_sys=System(Protocol(fds_t,fds_p),FDS)
 #below is a slice that shows what happens at 0=x2=x4=x5, and varying x1 and x3
 # -
 
-FDS_sys.show_potential(.5,surface=True,x_min=-2,x_max=2,y_min=-2,y_max=2,axis1=1,axis2=3)
+fds_sys.show_potential(.5,surface=True,x_min=-2,x_max=2,y_min=-2,y_max=2,axis1=1,axis2=3)
 
 #we can also set the slice values
 slice_val=(0,.6,0,.6,.2)
 #here it will set x3=0, x4=.6, and x5=.2 while varying x1 and x2 (defaul axes)
-FDS_sys.show_potential(.5,surface=True,x_min=-2,x_max=2,y_min=-2,y_max=2,slice_values=slice_val)
+fds_sys.show_potential(.5,surface=True,x_min=-2,x_max=2,y_min=-2,y_max=2,slice_values=slice_val)
 
 # again, we can animate. default axis and slice is the same as show_potential
 # mesh control the numbe of points we calcualte the potential at
-ani = FDS_sys.animate_protocol(surface=True, mesh=100, x_min=-2,x_max=2,y_min=-2,y_max=2, axis1=2, axis2=3)
+ani = fds_sys.animate_protocol(surface=True, mesh=100, x_min=-2,x_max=2,y_min=-2,y_max=2, axis1=2, axis2=3)
 HTML(ani.to_jshtml(fps=10))
 
 # # Bonus practice
@@ -393,12 +391,12 @@ from protocol_designer.protocol import sequential_protocol
 
 # +
 # as an example, lets apply Alec's version of the Szilard Engine. This operates on the Duffing_2D potential
-from protocol_designer.potentials import Duffing_2D
+from protocol_designer.potentials import duffing_2D
 
 #out of the 7 possible parameters in this potential, 3 of them are held fixed at the default value for
 #the potential (can be accessed with Potential.default_parameter, if its not defined the default will set all
 # parameters to 0)
-Duffing_2D.default_params
+duffing_2D.default_params
 
 # +
 # in this version of szilards engine, we keep everything fixed except for the 3rd,4th,6th, and 7th parameters.
@@ -419,21 +417,19 @@ NP=7
 # -
 
 #then we create the Compound Protocol (note that default_params is optional, and defaults will be 0 without it)
-szilard_prot_1 = sequential_protocol(NS, NP, which, non_triv_param, initial_params=Duffing_2D.default_params )
+szilard_prot_1 = sequential_protocol(NS, NP, which, non_triv_param, initial_params=duffing_2D.default_params )
 
-Szil_sys=System(szilard_prot_1, Duffing_2D)
+szil_sys=System(szilard_prot_1, duffing_2D)
 L=2
-ani=Szil_sys.animate_protocol(frames=50, surface=False,x_min=-L,x_max=L,y_min=-L,y_max=L)
+ani=szil_sys.animate_protocol(frames=50, surface=False,x_min=-L,x_max=L,y_min=-L,y_max=L)
 HTML(ani.to_jshtml(fps=5))
 
-# +
 # note that the function automatically makes NS substages of equal length between t=0 and t=1
 # if you want to customize the times, then you can pass a list of length NS+1 to define
 # the substage times:
 t_list=(0,.5,.75,1,1.5,2,2.2,2.8,3,4,5,6,6.3)
-szilard_prot_2 = sequential_protocol(NS, NP, which, non_triv_param, times=t_list, initial_params=Duffing_2D.default_params)
-
-
-# -
+szilard_prot_2 = sequential_protocol(NS, NP, which, non_triv_param, times=t_list, initial_params=duffing_2D.default_params)
 
 szilard_prot_2.show_substage_times()
+
+

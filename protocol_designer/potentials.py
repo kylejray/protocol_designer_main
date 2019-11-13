@@ -42,7 +42,7 @@ def one_D_V_force(x, params):
     return(slope*np.sign(x-x_0))
 
 
-ODV = Potential(one_D_V, one_D_V_force, 2, 1)
+odv = Potential(one_D_V, one_D_V_force, 2, 1)
 
 # the coupled duffing potential:
 # defautls are set so that it is 4 equal wells
@@ -60,7 +60,7 @@ def coupled_duffing_2D_force(x, y, params):
     return(-dx, -dy)
 
 
-Duffing_2D = Potential(coupled_duffing_2D, coupled_duffing_2D_force, 7, 2, default_params=(1., 1., -1., -1., 0, 0, 0))
+duffing_2D = Potential(coupled_duffing_2D, coupled_duffing_2D_force, 7, 2, default_params=(1., 1., -1., -1., 0, 0, 0))
 
 # Next we have a more complicated potential, that uses higher the next order coupling xy^2 and yx^2:
 # BLW stands for barriers lifts wells,
@@ -80,7 +80,7 @@ Duffing_2D = Potential(coupled_duffing_2D, coupled_duffing_2D_force, 7, 2, defau
 # 11,12:    y coord for 0,1 wells                       (absolute)
 
 
-def BLW_potential(x, y, params, scaled_params=True):
+def blw_potential(x, y, params, scaled_params=True):
     L = 2
     WD = 1
     B = .5
@@ -102,7 +102,7 @@ def BLW_potential(x, y, params, scaled_params=True):
     return (barriers+lifts+WD*wells)
 
 
-def BLW_potential_force(x, y, params, scaled_params=True):
+def blw_potential_force(x, y, params, scaled_params=True):
     WD = 1
     L = 2
     B = 2
@@ -118,12 +118,12 @@ def BLW_potential_force(x, y, params, scaled_params=True):
 
     a, b, c, d, L0, L1, R0, R1, x1, x2, y1, y2 = params
 
-    dx_barriers = a*(y+L)*(L-y)-b*(y+L)*(L-y)-c*2*x*(y+L)-d*2*x*(L-y)+L(B-a)-L(B-b)
+    dx_barriers = a*(y+L)*(L-y)-b*(y+L)*(L-y)-c*2*x*(y+L)-d*2*x*(L-y)+L*(B-a)-L*(B-b)
     dx_lifts = -L0*(L-y)-L1*(y+L)+R0*(L-y)+R1*(y+L)
     dx_wells = 2*(x-x1)*(x-x2)*(2*x-x1-x2)
     f_x = -(dx_barriers+dx_lifts+WD*dx_wells)
 
-    dy_barriers = -a*(x+L)*2*y-b*(L-x)*2*y+c*(x+L)*(L-x)-d*(x+L)*(L-x)+L*(B-c)-L(B-d)
+    dy_barriers = -a*(x+L)*2*y-b*(L-x)*2*y+c*(x+L)*(L-x)-d*(x+L)*(L-x)+L*(B-c)-L*(B-d)
     dy_lifts = -L0*(L-x)+L1*(L-x)-R0*(x+L)+R1*(x+L)
     dy_wells = 2*(y-y1)*(y-y2)*(2*y-y1-y2)
     f_y = -(dy_barriers+dy_lifts+WD*dy_wells)
@@ -131,7 +131,7 @@ def BLW_potential_force(x, y, params, scaled_params=True):
     return(f_x, f_y)
 
 
-BLW = Potential(BLW_potential, BLW_potential_force, 12, 2, default_params=(1, 1, 1, 1, 0, 0, 0, 0, -1, 1, -1, 1))
+blw = Potential(blw_potential, blw_potential_force, 12, 2, default_params=(1, 1, 1, 1, 0, 0, 0, 0, -1, 1, -1, 1))
 
 
 # Next we have exponential wells, in order to test really well localized wells.
@@ -159,7 +159,7 @@ def exp_potential(x, y, params, scaled_params=True):
 
     if scaled_params:
         B_scale = 5.5
-        L_scale = 1
+        L_scale = 10
         B_shift = -.5
         L_shift = 0
         B = B_scale+B_shift
@@ -174,7 +174,7 @@ def exp_potential(x, y, params, scaled_params=True):
     WL1 = exp_well(x, y, L1, 1+L1R1, 1+L0L1, xL1, yL1)
     WR0 = exp_well(x, y, R0, 1+L0R0, 1+R0R1, xR0, yR0)
     WR1 = exp_well(x, y, R1, 1+L1R1, 1+R0R1, xR1, yR1)
-    s = .05
+    s = .1
     stability = s*(x**2+y**2)
     return (WL0+WL1+WR0+WR1+stability)
 
@@ -183,13 +183,13 @@ def exp_potential_force(x, y, params, scaled_params=True):
 
     if scaled_params:
         B_scale = 5.5
-        L_scale = 1
+        L_scale = 10
         B_shift = -.5
         L_shift = 0
         B = B_scale+B_shift
 
-        scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1)
-        shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0)
+        scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1, 1, 1, 1, 1)
+        shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0, 0, 0, 0, 0)
         params = np.multiply(scale_vector, params) + shift_vector
 
     L0L1, R0R1, L0R0, L1R1, L0, L1, R0, R1, xL0, yL0, xL1, yL1, xR0, yR0, xR1, yR1 = params
@@ -198,13 +198,13 @@ def exp_potential_force(x, y, params, scaled_params=True):
     WL1_dx, WL1_dy = exp_well_derivs(x, y, L1, 1+L1R1, 1+L0L1, xL1, yL1)
     WR0_dx, WR0_dy = exp_well_derivs(x, y, R0, 1+L0R0, 1+R0R1, xR0, yR0)
     WR1_dx, WR1_dy = exp_well_derivs(x, y, R1, 1+L1R1, 1+R0R1, xR1, yR1)
-    s = .05
-    xs = -2*s*x
-    ys = -2*s*y
+    s = .1
+    xs = 2*s*x
+    ys = 2*s*y
     fx, fy = -(WL0_dx+WL1_dx+WR0_dx+WR1_dx+xs), -(WL0_dy+WL1_dy+WR0_dy+WR1_dy+ys)
 
     return (fx, fy)
 
 
 exp_defaults = (1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, 1, 1, -1, 1, 1)
-Exp_wells_2D = Potential(exp_potential, exp_potential_force, 16, 2, default_params=exp_defaults)
+exp_wells_2D = Potential(exp_potential, exp_potential_force, 16, 2, default_params=exp_defaults)

@@ -102,9 +102,9 @@ class Protocol:
 
 class Compound_Protocol(Protocol):
 
-    def __init__(self, Protocols):
-        N = len(Protocols)
-        protocols = list(Protocols)
+    def __init__(self, protocols):
+        N = len(protocols)
+        protocols = list(protocols)
 
         def sorting_t_i(prot):
             return prot.t_i
@@ -148,7 +148,7 @@ class Compound_Protocol(Protocol):
             i += 1
 
     def copy(self):
-        return Compound_Protocol(self.protocols)
+        return copy.deepcopy(Compound_Protocol(self.protocols))
 
 
 def sequential_protocol(N_steps, N_params, which_params, nontrivial_params, times=None, initial_params=None):
