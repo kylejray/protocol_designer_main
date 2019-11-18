@@ -18,6 +18,8 @@
 
 # +
 import numpy as np 
+from protocol_designer.protocol import Protocol, Compound_Protocol, sequential_protocol
+
 
 import matplotlib.pyplot as plt
 plt.rcParams["animation.html"] = "jshtml"
@@ -44,25 +46,12 @@ exp_szilard=zp.ew2_szilard
 
 # +
 
-duff2D_szilard.show_potential(.2)
-duff2D_szilard.scale_potential(10)
+duff2D_szilard.show_potential(.3)
 
-blw_szilard.show_potential(.2)
+blw_szilard.show_potential(.3)
 
-exp_szilard.show_potential(.2)
+exp_szilard.show_potential(.3)
 # -
 
-ani = blw_szilard.animate_protocol(surface=True)
+ani = blw_szilard.animate_protocol(frames=30)
 HTML(ani.to_jshtml(fps=5))
-
-ani = duff2D_szilard.animate_protocol(n_contours=100)
-HTML(ani.to_jshtml(fps=5))
-
-ani = exp_szilard.animate_protocol(frames=50, surface=False)
-HTML(ani.to_jshtml(fps=5))
-
-exp_szilard.Protocol.show_params()
-
-
-
-

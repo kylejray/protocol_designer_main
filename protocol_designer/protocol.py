@@ -131,7 +131,6 @@ class Compound_Protocol(Protocol):
         self.t_i = float(np.min(times))
         self.t_f = float(np.max(times))
         self.N_params = N_params
-
         self.params = np.asarray(tuple(zip(self.get_params(self.t_i), self.get_params(self.t_f))))
 
     def get_params(self, t):
@@ -146,6 +145,68 @@ class Compound_Protocol(Protocol):
         for item in self.times:
             print('stage {} times:'.format(i), item)
             i += 1
+
+    def time_stretch(self, scale, which_stages=None):
+        if which_stages is None:
+            new_times = scale * (self.times-np.min(self.times)) + np.min(self.times)
+
+        if which_stages is not None:
+            new_times = np.copy(self.times)
+
+            if np.size(which_stages) == 1:
+                which_stages = np.array([which_stages])
+                index = which_stages-1
+            if np.size(which_stages) > 1:
+                index = np.asarray(which_stages) - 1
+
+            for idx in index:
+                t0 = new_times[idx, 0]
+                t1 = new_times[idx, 1]
+                new_times[idx, 1] = scale*(t1-t0)+t0
+                delta_t = new_times[idx, 1]-t1
+
+                for i in range(idx+1, len(self.protocols)):
+                    new_times[i, :] = new_times[i, :] + delta_t 
+
+        self.times = new_times
+        self.t_i = np.min(self.times)
+        self.t_f = np.max(self.times)
+        self.refresh_substage_times()
+
+    def time_shift(self, delta_t, which_stages=None):
+        if which_stages is None:
+            self.t_i = self.t_i + delta_t
+            self.t_f = self.t_f + delta_t
+            self.times = self.times + delta_t
+            self.refresh_substage_times()
+
+        if which_stages is not None:
+            new_times = np.copy(self.times)
+
+            if np.size(which_stages) == 1:
+                which_stages = np.array([which_stages])
+                index = which_stages-1
+            if np.size(which_stages) > 1:
+                index = np.asarray(which_stages) - 1
+
+            for idx in index:
+                if delta_t > 0:
+                    for i in range(idx, len(self.protocols)):
+                        new_times[i, :] = new_times[i, :] + delta_t
+                if delta_t < 0:
+                    for i in range(0, idx+1):
+                        j = idx - i
+                        new_times[j, :] = new_times[j, :] + delta_t
+
+            self.times = new_times
+            self.t_i = np.min(self.times)
+            self.t_f = np.max(self.times)
+            self.refresh_substage_times()
+
+    def refresh_substage_times(self):
+        for idx, item in enumerate(self.protocols):
+            item.t_i = self.times[idx, 0]
+            item.t_f = self.times[idx, 1]
 
     def copy(self):
         return copy.deepcopy(Compound_Protocol(self.protocols))

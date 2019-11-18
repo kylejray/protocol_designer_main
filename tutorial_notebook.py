@@ -374,7 +374,7 @@ HTML(ani.to_jshtml(fps=10))
 #
 # #### ODV is also a build in potential for testing purposes, go ahead and try to apply a protocol to it to see if your familiar enough with the package
 
-ODV.info()
+odv.info()
 
 # +
 #make a protocol
