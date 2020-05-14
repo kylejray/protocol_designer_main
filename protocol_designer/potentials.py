@@ -4,20 +4,31 @@ from protocol_designer.protocol import Protocol
 
 class Potential:
 
-    def __init__(self, potential, external_force, N_params, N_dim, default_params=None):
-        self.potential = potential
-        self.external_force = external_force
+    def __init__(self, potential, external_force, N_params, N_dim, default_params=None, relevant_domain=None):
+        self.scale = 1
+        self.pot = potential
+        self.force = external_force
         self.N_params = N_params
         self.N_dim = N_dim
         self.default_params = default_params
+        if relevant_domain is None:
+            self.domain = np.asarray((-2*np.ones(self.N_dim), 2*np.ones(self.N_dim)))
+        else:
+            self.domain = np.asarray(relevant_domain)
+
+    def potential(self, *args):
+        return(self.scale*self.pot(*args))
+
+    def external_force(self, *args):
+        return(self.scale*self.force(*args))
 
     def trivial_protocol(self, t_i=0, t_f=1):
         t = (t_i, t_f)
         if self.default_params is not None:
-            assert len(default_params) == self.N_params, "number of default parameters doesnt match potential"
+            assert len(self.default_params) == self.N_params, "number of default parameters doesnt match potential"
             params = []
             for i in range(self.N_params):
-                params.append((default_params[i], default_params[i]))
+                params.append((self.default_params[i], self.default_params[i]))
         if self.default_params is None:
             params = np.ones((self.N_params, 2))
 
@@ -26,6 +37,7 @@ class Potential:
     def info(self):
         print("This potential has {} parameters and {} dimensions".format(self.N_params, self.N_dim))
 
+
 # A simple 1D potential, for testing one dimensional systems
 # its just an absolute value. parameters are:
 # 1: the slope
@@ -33,6 +45,17 @@ class Potential:
 
 
 def one_D_V(x, params):
+    '''
+    A simple 1D potential, for testing one dimensional systems
+    its just an absolute value.
+    parameters
+    ----------
+    x: the coordinates
+    params: (1,2)
+    1: the slope
+    2: zero point
+    '''
+
     slope, x_0 = params
     return(slope*abs(x-x_0))
 
@@ -43,6 +66,15 @@ def one_D_V_force(x, params):
 
 
 odv = Potential(one_D_V, one_D_V_force, 2, 1)
+
+
+# 1D duffing
+
+
+def duffing_1d(x, params):
+    b, t = params
+    return(x)
+
 
 # the coupled duffing potential:
 # defautls are set so that it is 4 equal wells
@@ -61,6 +93,7 @@ def coupled_duffing_2D_force(x, y, params):
 
 
 duffing_2D = Potential(coupled_duffing_2D, coupled_duffing_2D_force, 7, 2, default_params=(1., 1., -1., -1., 0, 0, 0))
+
 
 # Next we have a more complicated potential, that uses higher the next order coupling xy^2 and yx^2:
 # BLW stands for barriers lifts wells,
@@ -174,8 +207,8 @@ def exp_potential(x, y, params, scaled_params=True):
     WL1 = exp_well(x, y, L1, 1+L1R1, 1+L0L1, xL1, yL1)
     WR0 = exp_well(x, y, R0, 1+L0R0, 1+R0R1, xR0, yR0)
     WR1 = exp_well(x, y, R1, 1+L1R1, 1+R0R1, xR1, yR1)
-    s = .1
-    stability = s*(x**2+y**2)
+    s = .3
+    stability = s*(x**4+y**4)
     return (WL0+WL1+WR0+WR1+stability)
 
 
@@ -198,10 +231,10 @@ def exp_potential_force(x, y, params, scaled_params=True):
     WL1_dx, WL1_dy = exp_well_derivs(x, y, L1, 1+L1R1, 1+L0L1, xL1, yL1)
     WR0_dx, WR0_dy = exp_well_derivs(x, y, R0, 1+L0R0, 1+R0R1, xR0, yR0)
     WR1_dx, WR1_dy = exp_well_derivs(x, y, R1, 1+L1R1, 1+R0R1, xR1, yR1)
-    s = .1
-    xs = 2*s*x
-    ys = 2*s*y
-    fx, fy = -(WL0_dx+WL1_dx+WR0_dx+WR1_dx+xs), -(WL0_dy+WL1_dy+WR0_dy+WR1_dy+ys)
+    s = .3
+    s_dx = 4*s*x**3
+    s_dy = 4*s*y**3
+    fx, fy = -(WL0_dx+WL1_dx+WR0_dx+WR1_dx+s_dx), -(WL0_dy+WL1_dy+WR0_dy+WR1_dy+s_dy)
 
     return (fx, fy)
 

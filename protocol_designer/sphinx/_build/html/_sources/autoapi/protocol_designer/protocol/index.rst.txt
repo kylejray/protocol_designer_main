@@ -1,0 +1,85 @@
+:mod:`protocol_designer.protocol`
+=================================
+
+.. py:module:: protocol_designer.protocol
+
+
+Module Contents
+---------------
+
+
+.. py:class:: Protocol(t, params)
+
+   .. method:: get_params(self, t)
+
+
+
+   .. method:: get_linear(self, init, final, t)
+
+
+
+   .. method:: get_logistic(self, init, final, t, ramp=5, offset=0)
+
+
+
+   .. method:: time_shift(self, dt)
+
+
+
+   .. method:: time_stretch(self, t_mult)
+
+
+
+   .. method:: normalize(self)
+
+
+
+   .. method:: reverse(self)
+
+
+
+   .. method:: change_param(self, which_params, new_params)
+
+
+
+   .. method:: copy(self)
+
+
+
+   .. method:: show_params(self, which=None)
+
+
+
+
+.. py:class:: Compound_Protocol(protocols)
+
+   Bases: :class:`protocol_designer.protocol.Protocol`
+
+   .. method:: get_params(self, t)
+
+
+
+   .. method:: show_substage_times(self)
+
+
+
+   .. method:: time_stretch(self, scale, which_stages=None)
+
+
+
+   .. method:: time_shift(self, delta_t, which_stages=None)
+
+
+
+   .. method:: refresh_substage_times(self)
+
+
+
+   .. method:: copy(self)
+
+
+
+
+.. function:: sequential_protocol(N_steps, N_params, which_params, nontrivial_params, times=None, initial_params=None)
+
+

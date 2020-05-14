@@ -61,18 +61,13 @@ L0L1 = (1, 0, 0, 1, 1, 1, 1)
 R0R1 = (1, 0, 0, 1, 1, 1, 1)
 L0R0 = (1, 1, 1, 1, 0, 0, 1)
 L1R1 = (1, 1, 1, 1, 0, 0, 1)
-
-L0 = np.multiply(-1, (0, 0, -1, -1, -1, 0, 0))+1
+L0 = (1, 1, 2, 2, 2, 1, 1)
 # L1 is constant 0
 # R0 is constant 0
-R1 = np.multiply(-1, (0, 0, -1, -1, -1, 0, 0))+1
+R1 = (1, 1, 2, 2, 2, 1, 1)
 
 which_p = (1, 2, 3, 4, 5, 8)
 
 ntp = (L0L1, R0R1, L0R0, L1R1, L0, R1)
 ew2_szilard_prot = sequential_protocol(6, 16, which_p, ntp, initial_params=exp_wells_2D.default_params)
 ew2_szilard = System(ew2_szilard_prot, exp_wells_2D)
-
-#BLW_szilard.animate_protocol(fps=5, surface=True)
-#D2D_szilard.animate_protocol(fps=5, surface=False)
-#EW2_szilard.animate_protocol(fps=5, surface=True)

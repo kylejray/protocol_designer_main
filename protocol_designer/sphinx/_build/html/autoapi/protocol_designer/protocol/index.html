@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>protocol_designer.protocol &#8212; protocol_designer 2019 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-protocol_designer.protocol">
+<span id="protocol-designer-protocol"></span><h1><a class="reference internal" href="#module-protocol_designer.protocol" title="protocol_designer.protocol"><code class="xref py py-mod docutils literal notranslate"><span class="pre">protocol_designer.protocol</span></code></a><a class="headerlink" href="#module-protocol_designer.protocol" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="protocol_designer.protocol.Protocol">
+<em class="property">class </em><code class="sig-prename descclassname">protocol_designer.protocol.</code><code class="sig-name descname">Protocol</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="protocol_designer.protocol.Protocol.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.get_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.get_linear">
+<code class="sig-name descname">get_linear</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">init</em>, <em class="sig-param">final</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.get_linear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.get_logistic">
+<code class="sig-name descname">get_logistic</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">init</em>, <em class="sig-param">final</em>, <em class="sig-param">t</em>, <em class="sig-param">ramp=5</em>, <em class="sig-param">offset=0</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.get_logistic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.time_shift">
+<code class="sig-name descname">time_shift</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">dt</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.time_shift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.time_stretch">
+<code class="sig-name descname">time_stretch</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t_mult</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.time_stretch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.normalize">
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.normalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.reverse">
+<code class="sig-name descname">reverse</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.reverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.change_param">
+<code class="sig-name descname">change_param</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">which_params</em>, <em class="sig-param">new_params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.change_param" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.show_params">
+<code class="sig-name descname">show_params</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">which=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.show_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol_designer.protocol.Compound_Protocol">
+<em class="property">class </em><code class="sig-prename descclassname">protocol_designer.protocol.</code><code class="sig-name descname">Compound_Protocol</code><span class="sig-paren">(</span><em class="sig-param">protocols</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#protocol_designer.protocol.Protocol" title="protocol_designer.protocol.Protocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">protocol_designer.protocol.Protocol</span></code></a></p>
+<dl class="method">
+<dt id="protocol_designer.protocol.Compound_Protocol.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.get_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Compound_Protocol.show_substage_times">
+<code class="sig-name descname">show_substage_times</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.show_substage_times" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Compound_Protocol.time_stretch">
+<code class="sig-name descname">time_stretch</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">scale</em>, <em class="sig-param">which_stages=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.time_stretch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Compound_Protocol.time_shift">
+<code class="sig-name descname">time_shift</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">delta_t</em>, <em class="sig-param">which_stages=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.time_shift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Compound_Protocol.refresh_substage_times">
+<code class="sig-name descname">refresh_substage_times</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.refresh_substage_times" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Compound_Protocol.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.protocol.sequential_protocol">
+<code class="sig-prename descclassname">protocol_designer.protocol.</code><code class="sig-name descname">sequential_protocol</code><span class="sig-paren">(</span><em class="sig-param">N_steps</em>, <em class="sig-param">N_params</em>, <em class="sig-param">which_params</em>, <em class="sig-param">nontrivial_params</em>, <em class="sig-param">times=None</em>, <em class="sig-param">initial_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.sequential_protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">protocol_designer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, kyle ray.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/autoapi/protocol_designer/protocol/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

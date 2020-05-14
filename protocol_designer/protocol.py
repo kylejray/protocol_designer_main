@@ -4,15 +4,50 @@ import copy
 
 
 class Protocol:
+    '''
+    The Protocol class can be thought of as a time dependent signal that is sent to an
+    instance of the Potential class, which gives the Potential the value of its parameters
+    as a function of time.
+
+    Attributes
+    ----------
+    params: ndarray of dimension [N_params, 2]
+        the initial and final values of each parameter
+
+    protocols: None
+        this is used for the inherited class, Compound_Protocol
+
+    t_i, t_f : float
+        the initial and final times of the protocol, t_i < t_f
+
+    N_params: int
+        number of parameters in the protocol
+
+    '''
 
     def __init__(self, t, params):
         self.params = np.asarray(params)
         self.protocols = None
-        self.t_i = t[0]
-        self.t_f = t[1]
+        self.t_i = float(t[0])
+        self.t_f = float(t[1])
         self.N_params = len(self.params[:, 0])
 
     def get_params(self, t):
+        '''
+        returns a list of length N_params, that gives the value of each parameter at time t
+        currently uses linear interpolation to determine the parameter
+
+        Parameters
+        ----------
+        t: float
+            the time at which you want the parameter values, t_i <= t <= t_f
+
+        Returns
+        -------
+        parameter_vals: ndarray of dimension [N_params]
+            gives the value of each parameter at the input time
+
+        '''
 
         if t < self.t_i:
 
@@ -26,27 +61,59 @@ class Protocol:
 
             return self.get_linear(self.params[:, 0], self.params[:, 1], t)
 
-    def get_linear(self, init, final, t):
-
-        return init+(t-self.t_i)*(final-init)/(self.t_f-self.t_i)
-
-    def get_logistic(self, init, final, t, ramp=5, offset=0):
-
-        delta_y = final-init
-        t_scaled = t-(self.t_i+self.t_f)/2
-        return(init+delta_y/(1+np.exp(-ramp*(t_scaled-offset))))
-
     def time_shift(self, dt):
+        '''
+        shifts the  protocol.t_i and protocol.t_f attributes
+        by an amount dt, there are no returns
+
+        Parameters
+        ----------
+        dt: float
+            the amount we want to shift time by
+        '''
         self.t_i = self.t_i+dt
         self.t_f = self.t_f+dt
 
     def time_stretch(self, t_mult):
+        '''
+        stretches the protocol to be longer by a factor of t_mult,
+        changes the attributes protocol.t_i and protocol.t_f, there are no returns
+
+        Parameters
+        ----------
+        t_mult: float
+            the amount we want to dilate the timescale by
+        '''
         self.t_f = self.t_i+t_mult*(self.t_f-self.t_i)
 
+    def normalize(self):
+        '''
+        normalizes the protocol timescale so it begins at t_i=0
+        and ends at t_f=1, no inputs and no outputs
+        '''
+        t_i = self.t_i
+        self.time_shift(-t_i)
+        t_f = self.t_f
+        self.time_stretch(1/t_f)
+
     def reverse(self):
+        '''
+        inverts protocol.params, so the initial parameters become the final ones,
+        no inputs no outputs
+        '''
         self.params = np.flip(self.params, axis=1)
 
     def change_param(self, which_params, new_params):
+        '''
+        Manually changes some or all of the parameter values in the protocol
+
+        Parameters
+        ----------
+        which_params: list
+            list of which paramters you want to change. i.e. which_params=(1,3) means you want to change the values for p1 and p3
+
+
+        '''
         index = np.asarray(which_params)-1
         self.params[index, :] = new_params
 
@@ -98,6 +165,21 @@ class Protocol:
                 item.set_xticks([])
 
             item.plot(t, p_array[:, i])
+
+    def get_linear(self, init, final, t):
+        '''
+        basic linear interpolation function, used internally by other methods
+        '''
+
+        return init+(t-self.t_i)*(final-init)/(self.t_f-self.t_i)
+
+    def get_logistic(self, init, final, t, ramp=5, offset=0):
+        '''
+        basic logistic interpolation function, used internally by other methods
+        '''
+        delta_y = final-init
+        t_scaled = t-(self.t_i+self.t_f)/2
+        return(init+delta_y/(1+np.exp(-ramp*(t_scaled-offset))))
 
 
 class Compound_Protocol(Protocol):
@@ -166,17 +248,13 @@ class Compound_Protocol(Protocol):
                 delta_t = new_times[idx, 1]-t1
 
                 for i in range(idx+1, len(self.protocols)):
-                    new_times[i, :] = new_times[i, :] + delta_t 
+                    new_times[i, :] = new_times[i, :] + delta_t
 
         self.times = new_times
-        self.t_i = np.min(self.times)
-        self.t_f = np.max(self.times)
         self.refresh_substage_times()
 
     def time_shift(self, delta_t, which_stages=None):
         if which_stages is None:
-            self.t_i = self.t_i + delta_t
-            self.t_f = self.t_f + delta_t
             self.times = self.times + delta_t
             self.refresh_substage_times()
 
@@ -199,14 +277,14 @@ class Compound_Protocol(Protocol):
                         new_times[j, :] = new_times[j, :] + delta_t
 
             self.times = new_times
-            self.t_i = np.min(self.times)
-            self.t_f = np.max(self.times)
             self.refresh_substage_times()
 
     def refresh_substage_times(self):
+        self.t_f = float(np.min(self.times))
+        self.t_f = float(np.max(self.times))
         for idx, item in enumerate(self.protocols):
-            item.t_i = self.times[idx, 0]
-            item.t_f = self.times[idx, 1]
+            item.t_i = float(self.times[idx, 0])
+            item.t_f = float(self.times[idx, 1])
 
     def copy(self):
         return copy.deepcopy(Compound_Protocol(self.protocols))

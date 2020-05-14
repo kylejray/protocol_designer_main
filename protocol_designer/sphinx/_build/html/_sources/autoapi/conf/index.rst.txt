@@ -1,0 +1,59 @@
+:mod:`conf`
+===========
+
+.. py:module:: conf
+
+
+Module Contents
+---------------
+
+.. data:: project
+   :annotation: = protocol_designer
+
+   
+
+.. data:: copyright
+   :annotation: = 2020, kyle ray
+
+   
+
+.. data:: author
+   :annotation: = kyle ray
+
+   
+
+.. data:: release
+   :annotation: = 2019
+
+   
+
+.. data:: extensions
+   :annotation: = ['sphinx.ext.napoleon', 'autoapi.extension']
+
+   
+
+.. data:: autoapi_dirs
+   :annotation: = ['..']
+
+   
+
+.. data:: templates_path
+   :annotation: = ['_templates']
+
+   
+
+.. data:: exclude_patterns
+   :annotation: = ['_build', 'Thumbs.db', '.DS_Store']
+
+   
+
+.. data:: html_theme
+   :annotation: = alabaster
+
+   
+
+.. data:: html_static_path
+   :annotation: = ['_static']
+
+   
+

@@ -137,7 +137,7 @@ erase_sys=System(erase_prot,blw)
 
 
 # You can animate the protocol
-ani=erase_sys.animate_protocol(mesh=40,surface=False);
+ani=erase_sys.animate_protocol(mesh=30);
 
 #There is a workaround below make the animatio show in jupyter notebook,
 #Normally you could just do plt.show() to show the animation. 
@@ -151,7 +151,7 @@ HTML(ani.to_jshtml(fps=5))
 # -
 
 #to see just a certain point in time use show_potential, surface determines if we see a wireframe or a contour plot.
-erase_sys.show_potential(.6,surface=False)
+erase_sys.show_potential(.6, surface=True)
 
 # +
 # you can pull out forces, the potential, or the energy given a set of coordiantes and a time 
@@ -192,7 +192,7 @@ def exp_well_force(x, y, params):
 # also you need to put in the number of parameters (3 here) and the number of dimensions (2 here)
 exp_well=Potential(exp_well_pot,exp_well_force,3,2)  
 # we can go ahead and look at it now by sending it through a System using Potential.trivial_protocol
-# this just sets all parameters to 1 and the time window from 0 to 1
+# this just sets all parameters to 1(or default values if they exist) and the time window from 0 to 1
 
 # the default parameters can be redefined when you instance a Potential class 
 # by passing a list of the default parameters
@@ -317,15 +317,14 @@ HTML(ani.to_jshtml(fps=10))
 
 # # Higher Dimensional Potentials
 #
-# ###### while the package can handle higher dimensional potentials fine, I havent worked on the visualization part of them yet.
-# ##### heres an example anyway...
+#
 # ##### 5 dimensional spherical containment with a hard edge :
 #
 # $$ V= 0 \quad\text{for} \quad \sqrt{x_i x^i} > r $$
 # $$ V=V_0  \quad\text{for}\quad \sqrt{x_i x^i} < r$$
 #
 #
-# ###### this wont be very useful for simulation because the force is zero everywhere, but its just for illustrative purposes anyway
+#
 #
 
 # +
@@ -378,10 +377,15 @@ odv.info()
 
 # +
 #make a protocol
+# -
+
+
 
 # +
 #make a system
 # -
+
+
 
 # # Working With built-in potentials
 
@@ -400,7 +404,8 @@ duffing_2D.default_params
 
 # +
 # in this version of szilards engine, we keep everything fixed except for the 3rd,4th,6th, and 7th parameters.
-# it is a 12 step protocol, so there are 13 places we need to define the changin parameters
+# it is a 12 step protocol, so there are 13 places we need to define the changing parameters including
+# the start point and the end point
 
 p3 = (-1, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1, -1)
 p4 = (-1, 0, 0, -1, -1, -1, -1, -1, -1, 0, 0, -1, -1)
@@ -431,5 +436,99 @@ t_list=(0,.5,.75,1,1.5,2,2.2,2.8,3,4,5,6,6.3)
 szilard_prot_2 = sequential_protocol(NS, NP, which, non_triv_param, times=t_list, initial_params=duffing_2D.default_params)
 
 szilard_prot_2.show_substage_times()
+
+# # Working With Built In Systems
+
+from szilard_protocols import ew2_szilard as exp_szilard
+system=exp_szilard
+
+r=.5
+for item in system.protocol.protocols:
+    item.change_param((9,10,11,12,13,14,15,16),((-r,-r),(-r,-r),(-r,-r),(r,r),(r,r),(-r,-r),(r,r),(r,r)))
+
+sysanim=system.animate_protocol(surface=True, x_min=-1, x_max=1, y_min=-1, y_max=1)
+HTML(sysanim.to_jshtml(fps=8))
+
+system2=system.copy()
+r=.8
+for item in system2.protocol.protocols:
+    item.change_param((9,10,11,12,13,14,15,16),((-r,-r),(-r,-r),(-r,-r),(r,r),(r,r),(-r,-r),(r,r),(r,r)))
+
+
+sysanim=system2.animate_protocol(surface=True, x_min=-1, x_max=1, y_min=-1, y_max=1)
+HTML(sysanim.to_jshtml(fps=8))
+
+# +
+from protocol_designer.protocol import Protocol, Compound_Protocol, sequential_protocol
+from protocol_designer.potentials import Potential, duffing_2D, blw, exp_wells_2D
+from protocol_designer.system import System
+# ADD
+# 1,2,3,4:                                  barrier heights for L0:L1,R0:R1,L0:R0,L1:R1      (0,1)
+# 5,6,7,8:                                  well depths for L0,L1,R0,R1,                     (absolute)
+# (9,10),(11,12),(13,14),(15,16):           (x,y) coordiantes of the L0,L1,R0,R1 wells       (absolute)
+
+# Flip #
+
+#L0L1 = (1, 1, 1, 1, 1)
+#R0R1 = (1, 1, 0, 1, 1)
+# L0R0 
+# L1R1 
+# L0 
+# L1
+#R0 = (1, 1, 2, 2, 1)
+# R1
+# L0 x,y
+L1_x = (-1, 0, 1)
+L1_y = (1, .5, 1)
+# R0 x,y
+R1_x = (1, 0, -1)
+R1_y = (1, 2, 1)
+which_p = (11, 12, 15, 16)
+ntp = (L1_x, L1_y, R1_x, R1_y)
+
+exp_flip_prot = sequential_protocol(2, 16, which_p, ntp, initial_params=exp_wells_2D.default_params)
+
+# Erase #
+
+#L0L1 = (1, 1, 1, 1, 1)
+R0R1 = (1, 0, 0, 1, 1)
+# L0R0 
+# L1R1 
+# L0 
+# L1
+R0 = (1, 1, 2, 2, 1)
+# R1
+
+
+which_p = (2, 7)
+
+ntp = (R0R1, R0)
+
+exp_R_erase_prot = sequential_protocol(4, 16, which_p, ntp, initial_params=exp_wells_2D.default_params)
+exp_R_erase_prot.time_shift(1)
+
+
+# +
+p_rots=[]
+for item in exp_flip_prot.protocols:
+    p_rots.append(item)
+
+for item in exp_R_erase_prot.protocols:
+    p_rots.append(item)
+
+# -
+
+len(p_rots)
+
+# +
+
+exp_add_prot = Compound_Protocol(p_rots)
+
+exp_add = System(exp_add_prot, exp_wells_2D)
+
+# -
+
+sysanim=exp_add.animate_protocol(surface=True, x_min=-2, x_max=2, y_min=-1.5, y_max=3)
+HTML(sysanim.to_jshtml(fps=8))
 
 

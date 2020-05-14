@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>protocol_designer.potentials &#8212; protocol_designer 2019 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-protocol_designer.potentials">
+<span id="protocol-designer-potentials"></span><h1><a class="reference internal" href="#module-protocol_designer.potentials" title="protocol_designer.potentials"><code class="xref py py-mod docutils literal notranslate"><span class="pre">protocol_designer.potentials</span></code></a><a class="headerlink" href="#module-protocol_designer.potentials" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="protocol_designer.potentials.Potential">
+<em class="property">class </em><code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">Potential</code><span class="sig-paren">(</span><em class="sig-param">potential</em>, <em class="sig-param">external_force</em>, <em class="sig-param">N_params</em>, <em class="sig-param">N_dim</em>, <em class="sig-param">default_params=None</em>, <em class="sig-param">relevant_domain=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.Potential" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="protocol_designer.potentials.Potential.potential">
+<code class="sig-name descname">potential</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.Potential.potential" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.potentials.Potential.external_force">
+<code class="sig-name descname">external_force</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.Potential.external_force" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.potentials.Potential.trivial_protocol">
+<code class="sig-name descname">trivial_protocol</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t_i=0</em>, <em class="sig-param">t_f=1</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.Potential.trivial_protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.potentials.Potential.info">
+<code class="sig-name descname">info</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.Potential.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.one_D_V">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">one_D_V</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.one_D_V" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple 1D potential, for testing one dimensional systems
+its just an absolute value.
+:param x:
+:type x: the coordinates
+:param params:
+:type params: (1,2)
+:param 1:
+:type 1: the slope
+:param 2:
+:type 2: zero point</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.one_D_V_force">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">one_D_V_force</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.one_D_V_force" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="protocol_designer.potentials.odv">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">odv</code><a class="headerlink" href="#protocol_designer.potentials.odv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.duffing_1d">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">duffing_1d</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.duffing_1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.coupled_duffing_2D">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">coupled_duffing_2D</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.coupled_duffing_2D" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.coupled_duffing_2D_force">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">coupled_duffing_2D_force</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.coupled_duffing_2D_force" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="protocol_designer.potentials.duffing_2D">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">duffing_2D</code><a class="headerlink" href="#protocol_designer.potentials.duffing_2D" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.blw_potential">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">blw_potential</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">params</em>, <em class="sig-param">scaled_params=True</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.blw_potential" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.blw_potential_force">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">blw_potential_force</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">params</em>, <em class="sig-param">scaled_params=True</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.blw_potential_force" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="protocol_designer.potentials.blw">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">blw</code><a class="headerlink" href="#protocol_designer.potentials.blw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.exp_well">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">exp_well</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">Depth</em>, <em class="sig-param">x_loc</em>, <em class="sig-param">y_loc</em>, <em class="sig-param">x0</em>, <em class="sig-param">y0</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.exp_well" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.exp_well_derivs">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">exp_well_derivs</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">Depth</em>, <em class="sig-param">x_loc</em>, <em class="sig-param">y_loc</em>, <em class="sig-param">x0</em>, <em class="sig-param">y0</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.exp_well_derivs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.exp_potential">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">exp_potential</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">params</em>, <em class="sig-param">scaled_params=True</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.exp_potential" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="protocol_designer.potentials.exp_potential_force">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">exp_potential_force</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">params</em>, <em class="sig-param">scaled_params=True</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.potentials.exp_potential_force" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="protocol_designer.potentials.exp_defaults">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">exp_defaults</code><a class="headerlink" href="#protocol_designer.potentials.exp_defaults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="protocol_designer.potentials.exp_wells_2D">
+<code class="sig-prename descclassname">protocol_designer.potentials.</code><code class="sig-name descname">exp_wells_2D</code><a class="headerlink" href="#protocol_designer.potentials.exp_wells_2D" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">protocol_designer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, kyle ray.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/autoapi/protocol_designer/potentials/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
