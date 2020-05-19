@@ -446,7 +446,7 @@ class System:
             the coordinates you want to get the domain for, i.e. axis1=2 means
             we are plotting the 'y' coordiante on the first axis
 
-        domain: None, or array or dimension [2, N_d]
+        domain: None, or array of dimension [2, N_d]
             if None, we pull the domain from the potential.domain
             if ndarray, a manual domain of the form [ (xmin,ymin,...), (xmax, ymax,...) ]
 

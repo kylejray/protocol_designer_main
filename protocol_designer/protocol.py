@@ -7,7 +7,8 @@ class Protocol:
     """
     The Protocol class can be thought of as a time dependent signal that is sent to an
     instance of the Potential class, which gives the Potential the value of its parameters
-    as a function of time.
+    as a function of time. The simple Protocol class can only hold one initial and final value
+    for each parameter.
 
     Attributes
     ----------
@@ -213,7 +214,7 @@ class Protocol:
 
 class Compound_Protocol(Protocol):
     """
-    Stitches a list of protocols into a single object, provided that the protocol times do not overlap with eachother
+    Stitches a list of protocols into a single object, provided that the protocol times do not overlap with eachother.
 
     Attributes
     ----------

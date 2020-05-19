@@ -13,6 +13,5 @@ Submodules
    potentials/index.rst
    protocol/index.rst
    system/index.rst
-   visualization_test/index.rst
 
 

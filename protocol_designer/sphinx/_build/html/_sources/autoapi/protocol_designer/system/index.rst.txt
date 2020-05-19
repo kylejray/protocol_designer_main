@@ -159,7 +159,7 @@ Module Contents
 
 
       Helper function used internally by the visualization code. Creates a
-      1D or 2D lattice of coordiantes and the potential at those coordinates
+      1D or 2D lattice of coordiantes and calculates the potential at those coordinates
 
       :param t: time of interest for the potential energy
       :type t: float

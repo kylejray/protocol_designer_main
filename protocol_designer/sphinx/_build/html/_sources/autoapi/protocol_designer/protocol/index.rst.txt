@@ -10,44 +10,121 @@ Module Contents
 
 .. py:class:: Protocol(t, params)
 
+   The Protocol class can be thought of as a time dependent signal that is sent to an
+   instance of the Potential class, which gives the Potential the value of its parameters
+   as a function of time.
+
+   .. attribute:: params
+
+      the initial and final values of each parameter
+
+      :type: ndarray of dimension [N_params, 2]
+
+   .. attribute:: protocols
+
+      this is used for the inherited class, Compound_Protocol
+
+      :type: None
+
+   .. attribute:: t_i, t_f
+
+      the initial and final times of the protocol, t_i < t_f
+
+      :type: float
+
+   .. attribute:: N_params
+
+      number of parameters in the protocol
+
+      :type: int
+
    .. method:: get_params(self, t)
 
 
+      returns a list of length N_params, that gives the value of each parameter at time t
+      currently uses linear interpolation to determine the parameter
 
-   .. method:: get_linear(self, init, final, t)
+      :param t: the time at which you want the parameter values, t_i <= t <= t_f
+      :type t: float
 
-
-
-   .. method:: get_logistic(self, init, final, t, ramp=5, offset=0)
-
+      :returns: **parameter_vals** -- gives the value of each parameter at the input time
+      :rtype: ndarray of dimension [N_params]
 
 
    .. method:: time_shift(self, dt)
 
 
+      shifts the  protocol.t_i and protocol.t_f attributes
+      by an amount dt, there are no returns
+
+      :param dt: the amount we want to shift time by
+      :type dt: float
+
 
    .. method:: time_stretch(self, t_mult)
 
+
+      stretches the protocol to be longer by a factor of t_mult,
+      changes the attributes protocol.t_i and protocol.t_f, there are no returns
+
+      :param t_mult: the amount we want to dilate the timescale by
+      :type t_mult: float
 
 
    .. method:: normalize(self)
 
 
+      normalizes the protocol timescale so it begins at t_i=0
+      and ends at t_f=1, no inputs and no outputs
+
 
    .. method:: reverse(self)
 
+
+      inverts protocol.params, so the initial parameters become the final ones,
+      no inputs no outputs
 
 
    .. method:: change_param(self, which_params, new_params)
 
 
+      Manually changes some or all of the parameter values in the protocol.
+      There are no returns
+
+      :param which_params: list of which paramters you want to change. i.e. which_params=(1,3) means you want to change the values for p1 and p3
+      :type which_params: list
+      :param new_params: list with the new initial and final values of every parameter you want to change
+      :type new_params: list of tuples of the form (p_i, p_f)
+
 
    .. method:: copy(self)
 
 
+      :returns:
+      :rtype: A copy of your current protocol
+
 
    .. method:: show_params(self, which=None)
 
+
+      Shows plots of the chosen parameters over times, no returns
+
+      :param which: if None, shows only onotrivial parameters that change over time
+                    if all, shows all parameters no amtter what
+                    if list, shows only the parameters in the list. i.e. which=3 will only show parameter numbe 3
+      :type which: None, all,  or list
+
+
+   .. method:: get_linear(self, init, final, t)
+
+
+      basic linear interpolation function, used internally by other methods
+
+
+   .. method:: get_logistic(self, init, final, t, ramp=5, offset=0)
+
+
+      basic logistic interpolation function, used internally by other methods
 
 
 
@@ -55,12 +132,34 @@ Module Contents
 
    Bases: :class:`protocol_designer.protocol.Protocol`
 
+   Stitches a list of protocols into a single object, provided that the protocol times do not overlap with eachother
+
+   .. attribute:: See attributes of the Protocol class
+
+
+
+   .. attribute:: protocols
+
+      list of the Protocol objects that make up the compound protocol.
+
+      :type: list of Protocols
+
+   .. attribute:: times
+
+      array that stores the start/end times of each substage protocol
+
+      :type: ndarray of dimensions [N_prot, 2]
+
    .. method:: get_params(self, t)
 
+
+      Same as the parent class in function, but requires slightly different code to implement
 
 
    .. method:: show_substage_times(self)
 
+
+      Prints the substage times for each piece of Compound_Protocol
 
 
    .. method:: time_stretch(self, scale, which_stages=None)
@@ -70,16 +169,35 @@ Module Contents
    .. method:: time_shift(self, delta_t, which_stages=None)
 
 
+      This extension of the time_shift protocol, it requires an additional input that tells us which substages we want to shift in time
+
+      :param delta_t: how much we are going to shift the time
+      :type delta_t: float
+      :param which_stages: which substages are going to get shifted
+                           if None, shifts all stages
+                           if list shifts only the selected substages
+                               (other times will adjust to keep the protocol going in forward time always)
+      :type which_stages: None or list of ints
+
 
    .. method:: refresh_substage_times(self)
 
+
+      This is a helper function, used internally by other methods.
+      It makes sure that the individual substage protocol t_i and t_f
+      and the Compound_Protocol.times array match by generating a new
+      Compound_Protocol.times array from the substage t_i's and t_f's
 
 
    .. method:: copy(self)
 
 
+      Returns a copy of the Protocol
+
 
 
 .. function:: sequential_protocol(N_steps, N_params, which_params, nontrivial_params, times=None, initial_params=None)
+
+   This function is to faciliate the creation of a common type of protocol.
 
 

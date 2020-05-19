@@ -38,55 +38,161 @@
 <dl class="class">
 <dt id="protocol_designer.protocol.Protocol">
 <em class="property">class </em><code class="sig-prename descclassname">protocol_designer.protocol.</code><code class="sig-name descname">Protocol</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>The Protocol class can be thought of as a time dependent signal that is sent to an
+instance of the Potential class, which gives the Potential the value of its parameters
+as a function of time.</p>
+<dl class="attribute">
+<dt id="protocol_designer.protocol.Protocol.params">
+<code class="sig-name descname">params</code><a class="headerlink" href="#protocol_designer.protocol.Protocol.params" title="Permalink to this definition">¶</a></dt>
+<dd><p>the initial and final values of each parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of dimension [N_params, 2]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="protocol_designer.protocol.Protocol.protocols">
+<code class="sig-name descname">protocols</code><a class="headerlink" href="#protocol_designer.protocol.Protocol.protocols" title="Permalink to this definition">¶</a></dt>
+<dd><p>this is used for the inherited class, Compound_Protocol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">t_i, t_f</code></dt>
+<dd><p>the initial and final times of the protocol, t_i &lt; t_f</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="protocol_designer.protocol.Protocol.N_params">
+<code class="sig-name descname">N_params</code><a class="headerlink" href="#protocol_designer.protocol.Protocol.N_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of parameters in the protocol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="protocol_designer.protocol.Protocol.get_params">
 <code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="protocol_designer.protocol.Protocol.get_linear">
-<code class="sig-name descname">get_linear</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">init</em>, <em class="sig-param">final</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.get_linear" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="protocol_designer.protocol.Protocol.get_logistic">
-<code class="sig-name descname">get_logistic</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">init</em>, <em class="sig-param">final</em>, <em class="sig-param">t</em>, <em class="sig-param">ramp=5</em>, <em class="sig-param">offset=0</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.get_logistic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>returns a list of length N_params, that gives the value of each parameter at time t
+currently uses linear interpolation to determine the parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>float</em>) – the time at which you want the parameter values, t_i &lt;= t &lt;= t_f</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>parameter_vals</strong> – gives the value of each parameter at the input time</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of dimension [N_params]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Protocol.time_shift">
 <code class="sig-name descname">time_shift</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">dt</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.time_shift" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>shifts the  protocol.t_i and protocol.t_f attributes
+by an amount dt, there are no returns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dt</strong> (<em>float</em>) – the amount we want to shift time by</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Protocol.time_stretch">
 <code class="sig-name descname">time_stretch</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t_mult</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.time_stretch" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>stretches the protocol to be longer by a factor of t_mult,
+changes the attributes protocol.t_i and protocol.t_f, there are no returns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t_mult</strong> (<em>float</em>) – the amount we want to dilate the timescale by</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Protocol.normalize">
 <code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.normalize" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>normalizes the protocol timescale so it begins at t_i=0
+and ends at t_f=1, no inputs and no outputs</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Protocol.reverse">
 <code class="sig-name descname">reverse</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.reverse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>inverts protocol.params, so the initial parameters become the final ones,
+no inputs no outputs</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Protocol.change_param">
 <code class="sig-name descname">change_param</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">which_params</em>, <em class="sig-param">new_params</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.change_param" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Manually changes some or all of the parameter values in the protocol.
+There are no returns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>which_params</strong> (<em>list</em>) – list of which paramters you want to change. i.e. which_params=(1,3) means you want to change the values for p1 and p3</p></li>
+<li><p><strong>new_params</strong> (<em>list of tuples of the form</em><em> (</em><em>p_i</em><em>, </em><em>p_f</em><em>)</em>) – list with the new initial and final values of every parameter you want to change</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Protocol.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A copy of your current protocol</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Protocol.show_params">
 <code class="sig-name descname">show_params</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">which=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.show_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Shows plots of the chosen parameters over times, no returns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>which</strong> (<em>None</em><em>, </em><em>all</em><em>,  or </em><em>list</em>) – if None, shows only onotrivial parameters that change over time
+if all, shows all parameters no amtter what
+if list, shows only the parameters in the list. i.e. which=3 will only show parameter numbe 3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.get_linear">
+<code class="sig-name descname">get_linear</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">init</em>, <em class="sig-param">final</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.get_linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>basic linear interpolation function, used internally by other methods</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.protocol.Protocol.get_logistic">
+<code class="sig-name descname">get_logistic</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">init</em>, <em class="sig-param">final</em>, <em class="sig-param">t</em>, <em class="sig-param">ramp=5</em>, <em class="sig-param">offset=0</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Protocol.get_logistic" title="Permalink to this definition">¶</a></dt>
+<dd><p>basic logistic interpolation function, used internally by other methods</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -94,15 +200,45 @@
 <dt id="protocol_designer.protocol.Compound_Protocol">
 <em class="property">class </em><code class="sig-prename descclassname">protocol_designer.protocol.</code><code class="sig-name descname">Compound_Protocol</code><span class="sig-paren">(</span><em class="sig-param">protocols</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#protocol_designer.protocol.Protocol" title="protocol_designer.protocol.Protocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">protocol_designer.protocol.Protocol</span></code></a></p>
+<p>Stitches a list of protocols into a single object, provided that the protocol times do not overlap with eachother</p>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">See attributes of the Protocol class</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="protocol_designer.protocol.Compound_Protocol.protocols">
+<code class="sig-name descname">protocols</code><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.protocols" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of the Protocol objects that make up the compound protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of Protocols</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="protocol_designer.protocol.Compound_Protocol.times">
+<code class="sig-name descname">times</code><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.times" title="Permalink to this definition">¶</a></dt>
+<dd><p>array that stores the start/end times of each substage protocol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of dimensions [N_prot, 2]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="protocol_designer.protocol.Compound_Protocol.get_params">
 <code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Same as the parent class in function, but requires slightly different code to implement</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Compound_Protocol.show_substage_times">
 <code class="sig-name descname">show_substage_times</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.show_substage_times" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Prints the substage times for each piece of Compound_Protocol</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Compound_Protocol.time_stretch">
@@ -112,24 +248,45 @@
 <dl class="method">
 <dt id="protocol_designer.protocol.Compound_Protocol.time_shift">
 <code class="sig-name descname">time_shift</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">delta_t</em>, <em class="sig-param">which_stages=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.time_shift" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This extension of the time_shift protocol, it requires an additional input that tells us which substages we want to shift in time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> (<em>float</em>) – how much we are going to shift the time</p></li>
+<li><p><strong>which_stages</strong> (<em>None</em><em> or </em><em>list of ints</em>) – <p>which substages are going to get shifted
+if None, shifts all stages
+if list shifts only the selected substages</p>
+<blockquote>
+<div><p>(other times will adjust to keep the protocol going in forward time always)</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Compound_Protocol.refresh_substage_times">
 <code class="sig-name descname">refresh_substage_times</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.refresh_substage_times" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This is a helper function, used internally by other methods.
+It makes sure that the individual substage protocol t_i and t_f
+and the Compound_Protocol.times array match by generating a new
+Compound_Protocol.times array from the substage t_i’s and t_f’s</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="protocol_designer.protocol.Compound_Protocol.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.Compound_Protocol.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a copy of the Protocol</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="protocol_designer.protocol.sequential_protocol">
 <code class="sig-prename descclassname">protocol_designer.protocol.</code><code class="sig-name descname">sequential_protocol</code><span class="sig-paren">(</span><em class="sig-param">N_steps</em>, <em class="sig-param">N_params</em>, <em class="sig-param">which_params</em>, <em class="sig-param">nontrivial_params</em>, <em class="sig-param">times=None</em>, <em class="sig-param">initial_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.protocol.sequential_protocol" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This function is to faciliate the creation of a common type of protocol.</p>
+</dd></dl>
 
 </div>
 </div>
