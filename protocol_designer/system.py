@@ -125,6 +125,59 @@ class System:
 
         return F
 
+    def eq_state(self, Nsample,  t=None, resolution=1000, damped=None, manual_domain=None, axis1=1, axis2=2, slice_vals=None):
+        NT = Nsample
+        state = np.zeros((max(100, int(2*NT)), self.potential.N_dim, 2))
+
+        def get_prob(self, state):
+            E_curr = self.get_energy(state, t)
+            Delta_U = E_curr-U0
+            return np.exp(-Delta_U)
+
+        x_min, x_max, y_min, y_max = self.get_domain(axis1, axis2, domain=manual_domain)
+        mins = (x_min, y_min)
+        maxes = (x_max, y_max)
+
+        if t is None:
+            t = self.protocol.t_i
+
+        U = self.lattice(t, resolution, x_min, x_max, y_min, y_max, axis1, axis2, slice_values=slice_vals)[0]
+
+        U0 = np.min(U)
+        i = 0
+
+        while i < Nsample:
+            n_coords = 2
+            if self.potential.N_dim == 1:
+                n_coords = 1
+            test_coords = np.zeros((NT, n_coords, 2))
+            test_state = np.copy(test_coords)
+            if slice_vals is not None:
+                test_state[:, :, 0] = slice_vals
+
+            if n_coords == 1:
+                test_coords[:, :, 0] = np.random.uniform(x_min, x_max, (NT, n_coords))
+            if n_coords == 2:
+                test_coords[:, :, 0] = np.random.uniform(mins, maxes, (NT, n_coords))
+            if damped is None:
+                test_coords[:, :, 1] = np.random.normal(0, 1, (NT, n_coords))
+            if n_coords == 2:
+                test_state[:, axis1-1, :] = test_coords[:, 0, :]
+                test_state[:, axis2-1, :] = test_coords[:, 1, :]
+            if n_coords == 1:
+                test_state = test_coords
+
+            p = get_prob(self, test_state)
+            decide = np.random.uniform(0, 1, NT)
+            n_sucesses = np.sum(p > decide)
+            if i == 0:
+                ratio = max(n_sucesses/NT, .1)
+            state[i:i+n_sucesses, :, :] = test_state[p > decide, :, :]
+            i = i + n_sucesses
+            NT = max(int((Nsample-i)/ratio), 100)
+        state = state[0:Nsample, :, :]
+        return(state)
+
     def show_potential(
         self,
         t,

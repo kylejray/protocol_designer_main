@@ -57,7 +57,7 @@ class Potential:
         """
 
         self.scale = 1
-        self.pot = self.scale * potential
+        self.pot = potential
         self.force = external_force
         self.N_params = N_params
         self.N_dim = N_dim
@@ -123,7 +123,7 @@ class Potential:
 
         return Protocol(t, params)
 
-    def info(self):
+    def info(self, verbose=False):
         """
         prints basic info about the potential
         """
@@ -133,6 +133,9 @@ class Potential:
             )
         )
         print("The current scale is {}".format(self.scale))
+        print('To see details about the specific potential set verbose=True')
+        if verbose:
+            print(self.pot.__doc__)
 
 
 # A simple 1D potential, for testing one dimensional systems
@@ -536,44 +539,9 @@ def exp_potential_force(x, y, params, scaled_params=True):
         L_shift = 0
         B = B_scale + B_shift
 
-        scale_vector = (
-            B_scale,
-            B_scale,
-            B_scale,
-            B_scale,
-            L_scale,
-            L_scale,
-            L_scale,
-            L_scale,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-        )
-        shift_vector = (
-            B_shift,
-            B_shift,
-            B_shift,
-            B_shift,
-            L_shift,
-            L_shift,
-            L_shift,
-            L_shift,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        )
+        scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1, 1, 1, 1, 1,)
+        shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0, 0, 0, 0, 0,)
         params = np.multiply(scale_vector, params) + shift_vector
-
     (
         L0L1,
         R0R1,

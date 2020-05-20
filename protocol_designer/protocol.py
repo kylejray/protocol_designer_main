@@ -137,7 +137,7 @@ class Protocol:
         Parameters
         ----------
         which: None, all,  or list
-            if None, shows only onotrivial parameters that change over time
+            if None, shows only nontrivial parameters that change over time
             if all, shows all parameters no amtter what
             if list, shows only the parameters in the list. i.e. which=3 will only show parameter numbe 3
         """
