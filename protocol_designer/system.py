@@ -126,6 +126,12 @@ class System:
         return F
 
     def eq_state(self, Nsample,  t=None, resolution=1000, damped=None, manual_domain=None, axis1=1, axis2=2, slice_vals=None):
+        '''
+        function still in development, docstring will come later.
+        generates Nsample coordinates from an equilibrium distribution at
+        time t.
+
+        '''
         NT = Nsample
         state = np.zeros((max(100, int(2*NT)), self.potential.N_dim, 2))
 
