@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>protocol_designer.system &#8212; protocol_designer 2019 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-protocol_designer.system">
+<span id="protocol-designer-system"></span><h1><a class="reference internal" href="#module-protocol_designer.system" title="protocol_designer.system"><code class="xref py py-mod docutils literal notranslate"><span class="pre">protocol_designer.system</span></code></a><a class="headerlink" href="#module-protocol_designer.system" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="protocol_designer.system.System">
+<em class="property">class </em><code class="sig-prename descclassname">protocol_designer.system.</code><code class="sig-name descname">System</code><span class="sig-paren">(</span><em class="sig-param">protocol</em>, <em class="sig-param">potential</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class bridges the gap between protocol designer
+and the info engine sims package. It take a protocol
+and a potential and packages it into a system that can
+be simulated.</p>
+<dl class="attribute">
+<dt id="protocol_designer.system.System.protocol">
+<code class="sig-name descname">protocol</code><a class="headerlink" href="#protocol_designer.system.System.protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>this is the signal that controls the potential parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>instance of the Protocol class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="protocol_designer.system.System.potential">
+<code class="sig-name descname">potential</code><a class="headerlink" href="#protocol_designer.system.System.potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>this is the potential energy landscape we will apply the
+protocol too</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>instance of the Potential class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a copy of the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>copy</strong></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>instance of the System class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.get_energy">
+<code class="sig-name descname">get_energy</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">coords</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the energy of a particle at location coords at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> (<em>ndarray of dimensions</em><em> [</em><em>N_c</em><em>, </em><em>N_d</em><em>, </em><em>2</em><em>]</em>) – array of N_c sets of coordinates in N_d dimensions</p></li>
+<li><p><strong>t</strong> (<em>float</em><em> or </em><em>int</em>) – time at which you want to evaluate the energy</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>U+T</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of dimension [N_c,]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.get_potential">
+<code class="sig-name descname">get_potential</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">coords</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.get_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the potential energy of a particle at location coords at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> (<em>ndarray of dimensions</em><em> [</em><em>N_c</em><em>, </em><em>N_d</em><em>, </em><em>2</em><em>]</em>) – array of N_c sets of coordinates in N_d dimensions</p></li>
+<li><p><strong>t</strong> (<em>float</em><em> or </em><em>int</em>) – time at which you want to evaluate the energy</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>U</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of dimension [N_c,]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.get_external_force">
+<code class="sig-name descname">get_external_force</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">coords</em>, <em class="sig-param">t</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.get_external_force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the forces on a particle due to the potential energy
+at location coords at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> (<em>ndarray of dimensions</em><em> [</em><em>N_c</em><em>, </em><em>N_d</em><em>, </em><em>2</em><em>]</em>) – array of N_c sets of coordinates in N_d dimensions</p></li>
+<li><p><strong>t</strong> (<em>float</em><em> or </em><em>int</em>) – time at which you want to evaluate the energy</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>U</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of dimension [N_c, N_d]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.eq_state">
+<code class="sig-name descname">eq_state</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">Nsample</em>, <em class="sig-param">t=None</em>, <em class="sig-param">resolution=1000</em>, <em class="sig-param">damped=None</em>, <em class="sig-param">manual_domain=None</em>, <em class="sig-param">axis1=1</em>, <em class="sig-param">axis2=2</em>, <em class="sig-param">slice_vals=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.eq_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>function still in development, docstring will come later.
+generates Nsample coordinates from an equilibrium distribution at
+time t.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.show_potential">
+<code class="sig-name descname">show_potential</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t</em>, <em class="sig-param">resolution=100</em>, <em class="sig-param">surface=False</em>, <em class="sig-param">manual_domain=None</em>, <em class="sig-param">contours=50</em>, <em class="sig-param">axis1=1</em>, <em class="sig-param">axis2=2</em>, <em class="sig-param">slice_values=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.show_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows a 1 or 2D plot of the potential at a time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – the time you want to plot the potential at</p></li>
+<li><p><strong>resolution</strong> (<em>int</em>) – the number of sample points to plot along each axis</p></li>
+<li><p><strong>surface</strong> (<em>True/False</em>) – if True plots a wireframe surface in 3D
+if False plots a contour plot in 2D</p></li>
+<li><p><strong>manual_domain</strong> (<em>None</em><em> or </em><em>ndarray of dimension</em><em> (</em><em>2</em><em>, </em><em>N_d</em><em>)</em>) – if None, we pull the domain from the default potential.domain
+if ndarray, a manual domain of the form [ (xmin,ymin,…), (xmax, ymax,…) ]</p></li>
+<li><p><strong>contours</strong> (<em>int</em><em> or </em><em>list</em>) – sets number of contours to plot, or list of manually set contours</p></li>
+<li><p><strong>axis2</strong> (<em>axis1</em><em>,</em>) – which coordinate we will consider to be ‘x’ and ‘y’ for the plot</p></li>
+<li><p><strong>slice_values</strong> (<em>ndarray of dimension</em><em> [</em><em>N_d</em><em>,</em><em>]</em>) – these are the values we keep the other coordinates fixed at while sweeping through axis1 and axis2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>no returns, just plots a figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.animate_protocol">
+<code class="sig-name descname">animate_protocol</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">mesh=40</em>, <em class="sig-param">fps=10</em>, <em class="sig-param">frames=50</em>, <em class="sig-param">surface=False</em>, <em class="sig-param">save=False</em>, <em class="sig-param">manual_domain=None</em>, <em class="sig-param">n_contours=50</em>, <em class="sig-param">axis1=1</em>, <em class="sig-param">axis2=2</em>, <em class="sig-param">slice_values=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.animate_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows an animation of how the potential changes over the duration of your protocol, can be a little slow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<em>int</em>) – the number of sample points to plot along each axis</p></li>
+<li><p><strong>fps</strong> (<em>int</em>) – frames per second in the animation</p></li>
+<li><p><strong>frame</strong> (<em>int</em>) – number of frames to render</p></li>
+<li><p><strong>surface</strong> (<em>True/False</em>) – if True plots a wireframe surface in 3D
+if False plots a contour plot in 2D</p></li>
+<li><p><strong>manual_domain</strong> (<em>None</em><em> or </em><em>ndarray of dimension</em><em> (</em><em>2</em><em>, </em><em>N_d</em><em>)</em>) – if None, we pull the domain from the default potential.domain
+if ndarray, a manual domain of the form [ (xmin,ymin,…), (xmax, ymax,…) ]</p></li>
+<li><p><strong>n_contours</strong> (<em>int</em><em> or </em><em>list</em>) – sets number of contours to plot, or list of manually set contours</p></li>
+<li><p><strong>axis2</strong> (<em>axis1</em><em>,</em>) – which coordinate we will consider to be ‘x’ and ‘y’ for the plot</p></li>
+<li><p><strong>slice_values</strong> (<em>ndarray of dimension</em><em> [</em><em>N_d</em><em>,</em><em>]</em>) – these are the values we keep the other coordinates fixed at while sweeping through axis1 and axis2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>anim</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>animation.FuncAnimate object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.get_domain">
+<code class="sig-name descname">get_domain</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">axis1</em>, <em class="sig-param">axis2</em>, <em class="sig-param">domain=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.get_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>a helper function used only internally by other methods
+it is for deciding what the relevant domain is
+for visualization purposes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis2</strong> (<em>axis1</em><em>,</em>) – the coordinates you want to get the domain for, i.e. axis1=2 means
+we are plotting the ‘y’ coordiante on the first axis</p></li>
+<li><p><strong>domain</strong> (<em>None</em><em>, or </em><em>array of dimension</em><em> [</em><em>2</em><em>, </em><em>N_d</em><em>]</em>) – if None, we pull the domain from the potential.domain
+if ndarray, a manual domain of the form [ (xmin,ymin,…), (xmax, ymax,…) ]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>if a 1D potential</em></p></li>
+<li><p><strong>x_min, x_max, [], []</strong> (<em>float</em>) – x_min, x_max is our relevant domain boundaries
+y_min ,y_max are empty placeholder lists</p></li>
+<li><p><em>if a 2D potential</em></p></li>
+<li><p><strong>x_min, x_max, y_min, y_max</strong> (<em>floats</em>) – relevant domain boundaries for axis1 and axis2, respectively</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol_designer.system.System.lattice">
+<code class="sig-name descname">lattice</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t</em>, <em class="sig-param">resolution</em>, <em class="sig-param">x_min</em>, <em class="sig-param">x_max</em>, <em class="sig-param">y_min</em>, <em class="sig-param">y_max</em>, <em class="sig-param">axis1=1</em>, <em class="sig-param">axis2=2</em>, <em class="sig-param">slice_values=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function used internally by the visualization code. Creates a
+1D or 2D lattice of coordiantes and calculates the potential at those coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – time of interest for the potential energy</p></li>
+<li><p><strong>resolution</strong> (<em>int</em>) – how many points we want to sample along each axis</p></li>
+<li><p><strong>x_max</strong><strong>, </strong><strong>y_min</strong><strong>, </strong><strong>y_max</strong> (<em>x_min</em><em>,</em>) – min/max values of the horizontal and vertical axes, respectively</p></li>
+<li><p><strong>axis2</strong> (<em>axis1</em><em>,</em>) – which coordinate we will consider to be ‘x’ and ‘y’ for the plot</p></li>
+<li><p><strong>slice_values</strong> (<em>ndarray of dimension</em><em> [</em><em>N_d</em><em>,</em><em>]</em>) – there are the values we keep the other coordinates fixed at while sweeping through axis1 and axis2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><em>if 1D</em> –</p>
+<dl class="simple">
+<dt>U: ndarray of dimension [resolution,]</dt><dd><p>the potential at our test points, X</p>
+</dd>
+<dt>X: ndarray of dimensiion [resolution]</dt><dd><p>array of our test points</p>
+</dd>
+</dl>
+</li>
+<li><p><em>if 2D</em> –</p>
+<dl class="simple">
+<dt>U: ndarray of dimension [resolution, resolution]</dt><dd><p>the potential at our test points: X,Y</p>
+</dd>
+<dt>X,Y: np arrays of dimension [resolution, resolution]</dt><dd><p>X/Y gives the axis1/axis2 coordinates at each lattice point
+they are the results of an np.meshgrid operation</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">protocol_designer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, kyle ray.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/autoapi/protocol_designer/system/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
