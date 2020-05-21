@@ -1,7 +1,6 @@
 /.vscode/
 /.ipynb_checkpoints/
 /__pycache__/
-*.ipynb
 *.json
 *.nb
 testing_stuff.py
