@@ -80,6 +80,10 @@ Module Contents
       :rtype: ndarray of dimension [N_c, N_d]
 
 
+   .. method:: eq_state(self, Nsample, t=None, resolution=1000, damped=None, manual_domain=None, axis1=1, axis2=2, slice_vals=None)
+
+
+
    .. method:: show_potential(self, t, resolution=100, surface=False, manual_domain=None, contours=50, axis1=1, axis2=2, slice_values=None)
 
 
@@ -146,7 +150,7 @@ Module Contents
       :type axis1, axis2: int
       :param domain: if None, we pull the domain from the potential.domain
                      if ndarray, a manual domain of the form [ (xmin,ymin,...), (xmax, ymax,...) ]
-      :type domain: None, or array or dimension [2, N_d]
+      :type domain: None, or array of dimension [2, N_d]
 
       :returns: * *if a 1D potential*
                 * **x_min, x_max, [], []** (*float*) -- x_min, x_max is our relevant domain boundaries

@@ -141,6 +141,11 @@ at location coords at time t</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="protocol_designer.system.System.eq_state">
+<code class="sig-name descname">eq_state</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">Nsample</em>, <em class="sig-param">t=None</em>, <em class="sig-param">resolution=1000</em>, <em class="sig-param">damped=None</em>, <em class="sig-param">manual_domain=None</em>, <em class="sig-param">axis1=1</em>, <em class="sig-param">axis2=2</em>, <em class="sig-param">slice_vals=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.eq_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="protocol_designer.system.System.show_potential">
 <code class="sig-name descname">show_potential</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">t</em>, <em class="sig-param">resolution=100</em>, <em class="sig-param">surface=False</em>, <em class="sig-param">manual_domain=None</em>, <em class="sig-param">contours=50</em>, <em class="sig-param">axis1=1</em>, <em class="sig-param">axis2=2</em>, <em class="sig-param">slice_values=None</em><span class="sig-paren">)</span><a class="headerlink" href="#protocol_designer.system.System.show_potential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shows a 1 or 2D plot of the potential at a time t</p>
@@ -206,7 +211,7 @@ for visualization purposes.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>axis2</strong> (<em>axis1</em><em>,</em>) – the coordinates you want to get the domain for, i.e. axis1=2 means
 we are plotting the ‘y’ coordiante on the first axis</p></li>
-<li><p><strong>domain</strong> (<em>None</em><em>, or </em><em>array</em><em> or </em><em>dimension</em><em> [</em><em>2</em><em>, </em><em>N_d</em><em>]</em>) – if None, we pull the domain from the potential.domain
+<li><p><strong>domain</strong> (<em>None</em><em>, or </em><em>array of dimension</em><em> [</em><em>2</em><em>, </em><em>N_d</em><em>]</em>) – if None, we pull the domain from the potential.domain
 if ndarray, a manual domain of the form [ (xmin,ymin,…), (xmax, ymax,…) ]</p></li>
 </ul>
 </dd>

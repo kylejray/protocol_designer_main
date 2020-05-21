@@ -10,20 +10,90 @@ Module Contents
 
 .. py:class:: Potential(potential, external_force, N_params, N_dim, default_params=None, relevant_domain=None)
 
+   This class is relatively simple in function. It bundles a force function and a potential energy function
+   together with methods to pull out the forces and energies when given coordinates and parameters. There are
+   also some other useful pieces of information stored, as well as utility methods
+
+   .. attribute:: scale
+
+      a multiplicative scale for the whole potential
+
+      :type: float
+
+   .. attribute:: pot
+
+      the potential energy function
+
+      :type: func
+
+   .. attribute:: force
+
+      the force function
+
+      :type: func
+
+   .. attribute:: N_params
+
+      the number of parameters that the force/potential energy need to give well defined answers
+
+      :type: int
+
+   .. attribute:: N_dim
+
+      number of dimensions the potential is over
+
+      :type: int
+
+   .. attribute:: default_params = None or list
+
+      if None, will set each default to 1
+      if list (length N_params), list becomes the default values for each parameter
+
+   .. attribute:: domain
+
+      stores the relevant working domain of the potential, where we expect interesting dynamics to happen
+      if None, uses -2,2 for all dimensions
+      if ndarray, take the array to be [ [x1_min, x2_min,....], [x1_max, x2_max,...]]
+
+      :type: None or ndarray of dimension [2, N_dim]
+
    .. method:: potential(self, *args)
 
+
+      :param \*args:
+      :type \*args: the arguments to be fed into the potential function
+
+      :returns:
+      :rtype: a scaled version of the potential function
 
 
    .. method:: external_force(self, *args)
 
 
+      :param \*args:
+      :type \*args: the arguments to be fed into the force function
+
+      :returns:
+      :rtype: a scaled version of the force function
+
 
    .. method:: trivial_protocol(self, t_i=0, t_f=1)
 
 
+      makes a trivial (all parameters held fixed) protocol that will work with this potential
 
-   .. method:: info(self)
+      :param t_i,t_f: the initial and final times of the protocol
+      :type t_i,t_f: floats
 
+      :returns: **Protocol** -- this will be a simple one step protocol, where all parameters are held
+                fixed at their default values, potential.default_params.
+      :rtype: instance of Protocol class
+
+
+   .. method:: info(self, verbose=False)
+
+
+      prints basic info about the potential
 
 
 
@@ -31,17 +101,20 @@ Module Contents
 
    A simple 1D potential, for testing one dimensional systems
    its just an absolute value.
+
    :param x:
    :type x: the coordinates
-   :param params:
+   :param params: 1: the slope
+                  2: zero point
    :type params: (1,2)
-   :param 1:
-   :type 1: the slope
-   :param 2:
-   :type 2: zero point
+
+   :returns:
+   :rtype: the value of the potential at location x with the given params
 
 
 .. function:: one_D_V_force(x, params)
+
+   See one_D_V function, it has the same input format.
 
 
 .. data:: odv
@@ -49,13 +122,28 @@ Module Contents
 
    
 
-.. function:: duffing_1d(x, params)
-
-
 .. function:: coupled_duffing_2D(x, y, params)
+
+   the coupled 2D duffing potential:
+   defautls are set so that it is 4 equal wells
+
+   :param x: the x coordinates for N positions
+   :type x: ndarray of dimension [N,]
+   :param y: the y coordinates for N positions
+   :type y: ndarray of dimension [N,]
+   :param params: 1, 2 : coefficients of the x^4 and y^4 terms, respectively
+                  3, 4 : coefficients of the x^2 and y^2 terms, respectively
+                  5, 6 : coefficients of the x^1 and y^1 terms, respectively
+                  7: coefficient of the coupling term, x*y
+   :type params: list/tuple (1, 2, 3, 4, 5, 6, 7)
+
+   :returns:
+   :rtype: the value of the potential at locations x,y with the given params
 
 
 .. function:: coupled_duffing_2D_force(x, y, params)
+
+   See coupled_duffing_2D function, it has the same input format.
 
 
 .. data:: duffing_2D
@@ -65,8 +153,35 @@ Module Contents
 
 .. function:: blw_potential(x, y, params, scaled_params=True)
 
+   4 wells in 2D, using higher order terms than the duffing: xy^2 and yx^2
+
+   :param x: the x coordinates for N positions
+   :type x: ndarray of dimension [N,]
+   :param y: the y coordinates for N positions
+   :type y: ndarray of dimension [N,]
+   :param params:
+   :type params: list/tuple (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+   :param 1,2,3,4:
+   :type 1,2,3,4: barrier b/w R0:R1, L0:L1, L1:R1, L0:R0            (0,1)
+   :param 5,6,7,8:
+   :type 5,6,7,8: lifts/lowers the L0,L1,R0,R1 wells                (-1,1)
+   :param 9,10:
+   :type 9,10: x coord for L,R wells                             (absolute)
+   :param 11,12:
+   :type 11,12: y coord for 0,1 wells                             (absolute)
+   :param scaled_parameters: if True will scale the parameters to be functionally meaningful
+                             i.e. setting parameter 1 to 0 means that the barrier is dropped to its lowest value
+                             and setting it to 1 means that it is at its highers value
+                             if False, parameters are taken to be the actual inputs without the extra layer or functionalizing them
+   :type scaled_parameters: True or False
+
+   :returns:
+   :rtype: the value of the potential at locations x,y with the given params
+
 
 .. function:: blw_potential_force(x, y, params, scaled_params=True)
+
+   See blw_potential documentation
 
 
 .. data:: blw
@@ -82,8 +197,33 @@ Module Contents
 
 .. function:: exp_potential(x, y, params, scaled_params=True)
 
+   4 wells in 2D, using a exponentially localized wells
+
+   :param x: the x coordinates for N positions
+   :type x: ndarray of dimension [N,]
+   :param y: the y coordinates for N positions
+   :type y: ndarray of dimension [N,]
+   :param params:
+   :type params: list/tuple (1, 2, 3, ..., 16)
+   :param 1,2,3,4:
+   :type 1,2,3,4: barrier heights b/w R0:R1, L0:L1, L1:R1, L0:R0                         (0,1)
+   :param 5,6,7,8:
+   :type 5,6,7,8: well depths L0,L1,R0,R1 wells                                          (-1,1)
+   :param (9,10),(11,12),(13,14),(15,16):
+   :type (9,10),(11,12),(13,14),(15,16): (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param scaled_parameters: if True will scale the parameters to be functionally meaningful
+                             i.e. setting parameter 1 to 0 means that the barrier is dropped to its lowest value
+                             and setting it to 1 means that it is at its highers value
+                             if False, parameters are taken to be the actual inputs without the extra layer or functionalizing them
+   :type scaled_parameters: True or False
+
+   :returns:
+   :rtype: the value of the potential at locations x,y with the given params
+
 
 .. function:: exp_potential_force(x, y, params, scaled_params=True)
+
+   see exp_potential function docstring
 
 
 .. data:: exp_defaults

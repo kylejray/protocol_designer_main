@@ -12,7 +12,8 @@ Module Contents
 
    The Protocol class can be thought of as a time dependent signal that is sent to an
    instance of the Potential class, which gives the Potential the value of its parameters
-   as a function of time.
+   as a function of time. The simple Protocol class can only hold one initial and final value
+   for each parameter.
 
    .. attribute:: params
 
@@ -109,7 +110,7 @@ Module Contents
 
       Shows plots of the chosen parameters over times, no returns
 
-      :param which: if None, shows only onotrivial parameters that change over time
+      :param which: if None, shows only nontrivial parameters that change over time
                     if all, shows all parameters no amtter what
                     if list, shows only the parameters in the list. i.e. which=3 will only show parameter numbe 3
       :type which: None, all,  or list
@@ -132,44 +133,58 @@ Module Contents
 
    Bases: :class:`protocol_designer.protocol.Protocol`
 
-   Stitches a list of protocols into a single object, provided that the protocol times do not overlap with eachother
+   Stitches a list of protocols into a single object, provided that the protocol times do not overlap with eachother.
 
-   .. attribute:: See attributes of the Protocol class
+   .. attribute:: See attributes of the Protocol class, additionally we also have
 
 
 
    .. attribute:: protocols
 
-      list of the Protocol objects that make up the compound protocol.
+      list of the Protocol objects that make up the compound protocol, reffered to in the documentation as 'substages'
 
       :type: list of Protocols
 
    .. attribute:: times
 
-      array that stores the start/end times of each substage protocol
+      array that stores the start/end times of each substage
 
       :type: ndarray of dimensions [N_prot, 2]
 
    .. method:: get_params(self, t)
 
 
-      Same as the parent class in function, but requires slightly different code to implement
+      Same as the parent class function, but requires slightly different code to implement.
+      No Parameters or returns
 
 
    .. method:: show_substage_times(self)
 
 
-      Prints the substage times for each piece of Compound_Protocol
+      Prints the substage times for each piece of Compound_Protocol.
+      No parameters or Returns
 
 
    .. method:: time_stretch(self, scale, which_stages=None)
 
 
+      This extension of the parent class time_shift protocol requires an additional input
+          that tells us which substages we want to stretch in time
+
+      :param scale: how much we are going to dilate time
+      :type scale: float
+      :param which_stages: which substages are going to get stretched
+                           if None, stretches all stages
+                           if list, stretches only the selected substages
+                               (other times will translate automatically to keep the protocol going in forward time always)
+      :type which_stages: None or list of ints
+
 
    .. method:: time_shift(self, delta_t, which_stages=None)
 
 
-      This extension of the time_shift protocol, it requires an additional input that tells us which substages we want to shift in time
+      This extension of the parent class time_shift protocol requires an additional input
+          that tells us which substages we want to shift in time
 
       :param delta_t: how much we are going to shift the time
       :type delta_t: float
@@ -198,6 +213,39 @@ Module Contents
 
 .. function:: sequential_protocol(N_steps, N_params, which_params, nontrivial_params, times=None, initial_params=None)
 
-   This function is to faciliate the creation of a common type of protocol.
+   This function is to faciliate the creation of a common type of Compound Protocol,
+       often, a protocol has only a few nontrivial (actually changing) parameters
+       in the signal. This function is especially useful in these cases.
+
+   :param N_steps: number of stages in the protocol
+   :type N_steps: int
+   :param N_params: number of parameters in the signal
+   :type N_params: int
+   :param which_params: lists which parameters we are going to be changing in the full protocol
+   :type which_params: list of ints
+   :param nontrivial_params: the list is of length len(which_param)), each element corresponds to a different parameter
+                             each element should have a length of N_steps+1, and contain the parameter values at each substage start and end time
+   :type nontrivial_params: list of lists
+   :param times: if None will make equally spaced substages b/w t=0 and t=1
+                 if list (length = N_steps+1)
+   :type times: None or list of floats
+   :param initial_params: if None, the trivial parameters will be set to 0
+                          if list, usues the corresponding list element for the trivial parameter values
+   :type initial_params: None or list of lenth N_params
+
+   :returns: **Compound Protocol**
+   :rtype: instance of Compount_Protocol class
+
+   .. rubric:: Examples
+
+   Return a 5 parameter protocol, with 2 equal length substages, where the 3rd and 4th parameters are the only nontrivial ones.
+   The rest are held fixed at 1. Total time will be set to the default: t_f =1
+
+   >>> p3, p4 = (-1,1,0), (0,0,2)
+   >>> which_p = (3,4)
+   >>> nontrivial_p = (p3, p4)
+   >>> init_vals = np.ones(5)
+   >>> seq_prot = sequential_protocol(2, 5, which_p, nontrivial_p, initial_params=init_vals )
+   >>> seq_prot.show_substage_times()
 
 
