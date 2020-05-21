@@ -11,13 +11,13 @@ import matplotlib.pyplot as plt
 # 5,6,7,8:                                  well depths for L0,L1,R0,R1,                     (absolute)
 # (9,10),(11,12),(13,14),(15,16):           (x,y) coordiantes of the L0,L1,R0,R1 wells       (absolute)
 
-## MULTIPLY ##
+# # MULTIPLY # #
 
 L0L1 = (1, 0, 0, 1, 1)
 # R0R1 = (1, 1, 1, 1, 1)
 L0R0 = (1, 0, 0, 1, 1)
 # L1R1 = (1, 1, 1, 1, 1)
-L0   = (1, 1, 2, 2, 1)
+L0 = (1, 1, 2, 2, 1)
 # L1,R0,R1 are constant 1
 
 which_p = (1, 3, 5)
@@ -34,13 +34,13 @@ exp_mult = System(exp_mult_prot, exp_wells_2D)
 
 # Flip #
 
-#L0L1 = (1, 1, 1, 1, 1)
-#R0R1 = (1, 1, 0, 1, 1)
-# L0R0 
-# L1R1 
-# L0 
+# L0L1 = (1, 1, 1, 1, 1)
+# R0R1 = (1, 1, 0, 1, 1)
+# L0R0
+# L1R1
+# L0
 # L1
-#R0 = (1, 1, 2, 2, 1)
+# R0 = (1, 1, 2, 2, 1)
 # R1
 # L0 x,y
 L1_x = (-1, 0, 1)
@@ -55,11 +55,11 @@ exp_flip_prot = sequential_protocol(2, 16, which_p, ntp, initial_params=exp_well
 
 # Erase #
 
-#L0L1 = (1, 1, 1, 1, 1)
+# L0L1 = (1, 1, 1, 1, 1)
 R0R1 = (1, 0, 0, 1, 1)
-# L0R0 
-# L1R1 
-# L0 
+# L0R0
+# L1R1
+# L0
 # L1
 R0 = (1, 1, 2, 2, 1)
 # R1
@@ -72,7 +72,7 @@ ntp = (R0R1, R0)
 exp_R_erase_prot = sequential_protocol(4, 16, which_p, ntp, initial_params=exp_wells_2D.default_params)
 exp_R_erase_prot.time_shift(1)
 
-p_rots=[]
+p_rots = []
 for item in exp_flip_prot.protocols:
     p_rots.append(item)
 

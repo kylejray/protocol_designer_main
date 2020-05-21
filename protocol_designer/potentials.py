@@ -5,7 +5,7 @@ from protocol_designer.protocol import Protocol
 class Potential:
     """
     This class is relatively simple in function. It bundles a force function and a potential energy function
-    together with methods to pull out the forces and energies when given coordinates and parameters. There are 
+    together with methods to pull out the forces and energies when given coordinates and parameters. There are
     also some other useful pieces of information stored, as well as utility methods
 
     Attributes
@@ -127,15 +127,12 @@ class Potential:
         """
         prints basic info about the potential
         """
-        print(
-            "This potential has {} parameters and {} dimensions".format(
-                self.N_params, self.N_dim
-            )
-        )
-        print("The current scale is {}".format(self.scale))
-        print('To see details about the specific potential set verbose=True')
         if verbose:
             print(self.pot.__doc__)
+        else:
+            print("This potential has {} parameters and {} dimensions".format(self.N_params, self.N_dim))
+            print("The current scale is {}".format(self.scale))
+            print('To see details about the specific potential set verbose=True')
 
 
 # A simple 1D potential, for testing one dimensional systems
@@ -275,34 +272,8 @@ def blw_potential(x, y, params, scaled_params=True):
         B_shift = -0.2
         L_shift = 0
         B = B_scale + B_shift
-        scale_vector = (
-            B_scale,
-            B_scale,
-            B_scale,
-            B_scale,
-            L_scale,
-            L_scale,
-            L_scale,
-            L_scale,
-            1,
-            1,
-            1,
-            1,
-        )
-        shift_vector = (
-            B_shift,
-            B_shift,
-            B_shift,
-            B_shift,
-            L_shift,
-            L_shift,
-            L_shift,
-            L_shift,
-            0,
-            0,
-            0,
-            0,
-        )
+        scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1,)
+        shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0,)
         params = np.multiply(scale_vector, params) + shift_vector
 
     a, b, c, d, L0, L1, R0, R1, x1, x2, y1, y2 = params
@@ -340,34 +311,8 @@ def blw_potential_force(x, y, params, scaled_params=True):
         B_shift = -0.2
         L_shift = 0
         B = B_scale + B_shift
-        scale_vector = (
-            B_scale,
-            B_scale,
-            B_scale,
-            B_scale,
-            L_scale,
-            L_scale,
-            L_scale,
-            L_scale,
-            1,
-            1,
-            1,
-            1,
-        )
-        shift_vector = (
-            B_shift,
-            B_shift,
-            B_shift,
-            B_shift,
-            L_shift,
-            L_shift,
-            L_shift,
-            L_shift,
-            0,
-            0,
-            0,
-            0,
-        )
+        scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1,)
+        shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0,)
         params = np.multiply(scale_vector, params) + shift_vector
 
     a, b, c, d, L0, L1, R0, R1, x1, x2, y1, y2 = params
@@ -461,62 +406,11 @@ def exp_potential(x, y, params, scaled_params=True):
         L_shift = 0
         B = B_scale + B_shift
 
-        scale_vector = (
-            B_scale,
-            B_scale,
-            B_scale,
-            B_scale,
-            L_scale,
-            L_scale,
-            L_scale,
-            L_scale,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-        )
-        shift_vector = (
-            B_shift,
-            B_shift,
-            B_shift,
-            B_shift,
-            L_shift,
-            L_shift,
-            L_shift,
-            L_shift,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-        )
+        scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1, 1, 1, 1, 1,)
+        shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0, 0, 0, 0, 0,)
         params = np.multiply(scale_vector, params) + shift_vector
 
-    (
-        L0L1,
-        R0R1,
-        L0R0,
-        L1R1,
-        L0,
-        L1,
-        R0,
-        R1,
-        xL0,
-        yL0,
-        xL1,
-        yL1,
-        xR0,
-        yR0,
-        xR1,
-        yR1,
-    ) = params
+    (L0L1, R0R1, L0R0, L1R1, L0, L1, R0, R1, xL0, yL0, xL1, yL1, xR0, yR0, xR1, yR1,) = params
 
     WL0 = exp_well(x, y, L0, 1 + L0R0, 1 + L0L1, xL0, yL0)
     WL1 = exp_well(x, y, L1, 1 + L1R1, 1 + L0L1, xL1, yL1)
@@ -542,24 +436,8 @@ def exp_potential_force(x, y, params, scaled_params=True):
         scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1, 1, 1, 1, 1,)
         shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0, 0, 0, 0, 0,)
         params = np.multiply(scale_vector, params) + shift_vector
-    (
-        L0L1,
-        R0R1,
-        L0R0,
-        L1R1,
-        L0,
-        L1,
-        R0,
-        R1,
-        xL0,
-        yL0,
-        xL1,
-        yL1,
-        xR0,
-        yR0,
-        xR1,
-        yR1,
-    ) = params
+
+    (L0L1, R0R1, L0R0, L1R1, L0, L1, R0, R1, xL0, yL0, xL1, yL1, xR0, yR0, xR1, yR1,) = params
 
     WL0_dx, WL0_dy = exp_well_derivs(x, y, L0, 1 + L0R0, 1 + L0L1, xL0, yL0)
     WL1_dx, WL1_dy = exp_well_derivs(x, y, L1, 1 + L1R1, 1 + L0L1, xL1, yL1)

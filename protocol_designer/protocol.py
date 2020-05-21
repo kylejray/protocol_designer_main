@@ -258,9 +258,7 @@ class Compound_Protocol(Protocol):
         self.t_i = float(np.min(times))
         self.t_f = float(np.max(times))
         self.N_params = N_params
-        self.params = np.asarray(
-            tuple(zip(self.get_params(self.t_i), self.get_params(self.t_f)))
-        )
+        self.params = np.asarray(tuple(zip(self.protocols[0].params[:, 0], self.protocols[-1].params[:, 1])))
 
     def get_params(self, t):
         """

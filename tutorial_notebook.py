@@ -26,7 +26,7 @@ from IPython.display import HTML
 # If we want to actually calculate values of the potential and force, we need to put in some coordinates.
 
 # N sets of coordinates are expected to be in an array with shape (N,D,2)
-# where D is the dimensionality of our system, the 2 coordiantes determine position/velocity coordinates
+# where D is the dimensionality of our system, the 2 coordinates determine position/velocity coordinates
 N=20
 coords_2D=np.random.random_sample((N,2,2))
 coords_1D=np.random.random_sample((N,1,2))
@@ -39,8 +39,12 @@ coords_5D=np.random.random_sample((10,5,2))
 # +
 #Let's jump in by importing some example protocols, we can talk about making them (and potentials) later.
 
-# example_substages defines 4 simple substages (intances of the protocol class)
-# to be used for testing purposes. It is a 12 parameter protocol,
+# example_substages defines 4 simple substages (intances of the protocol class):
+#    ESS.tilt, ESS.untilt, ESS.lower, ESS.unlower
+
+# also defined is the protocol you get by combining the four substages into a single protocol:
+#    ESS.CP (this is an instance of the compound protocol class, which is what most interesting protocols will be)
+
 
 import example_substages as ESS
 
@@ -51,11 +55,14 @@ untilt=ESS.untilt
 lower=ESS.lower
 unlower=ESS.unlower
 
-#all that protocols do is store some number of parameters as a function of time. they are very simple objects.
+# all that protocols do is store some number of parameters as a function of time. they are very simple objects.
+# each of the protocols above are 12 parameter protocols,
 # -
 
 # we can look at the signal a compound protocol generates over time:
 erase_prot.show_params()
+
+erase_prot.show_params?
 
 # by default it only shows the nontrivial parameters (the ones that are not constant)
 # we can show all by using
@@ -93,13 +100,14 @@ print('final time is:',tilt.t_f)
 # # Applying Protocols to Potentials using a System
 
 # +
-# The most important class here is the System class. It interpolates between whatever protocol/potential you create
-# and gregs simulation architecture. also contains visualization methods
+# Next we have the System class. It interpolates between whatever protocol/potential you create
+# and gregs simulation architecture. also contains visualization methods and other tools
 
-#Now we create the system that the protocol will apply to
-#Systems take a protocol as an input, as well as a potential.
-
+# Now we create the system that the protocol will apply to
+# Systems take an instance of the protocol class as an input, as well as an instance of the  potential class.
+# we can talk about building potentials later, for now well use a predefined one:
 #ODV is a predefined potential, so lets just plop it in:
+from protocol_designer.potentials import odv
 erase_sys=System(erase_prot,odv)
 
 # -
@@ -115,6 +123,9 @@ odv.info()
 
 # -
 
+# setting verbose =True will give you the docstring for the functional form of the potential
+odv.info(verbose=True)
+
 #BLW is a predefined 2D potential (happens to be a 4 well system).
 # it takes 12 parameters, and our erase protocol is a 12 parameter protocol,
 # so this will work with the erasing protocol. technically any 12 parameter potential would be compatible though.
@@ -124,16 +135,11 @@ blw.info()
 #initialize our full system:
 
 erase_sys=System(erase_prot,blw)
-# -
-
-
-
-# +
+# + {}
 # Visualization tools
     
 #animate the potential over time
 #this is mostly a sanity check at this point to make sure it looks how you think.
-
 
 
 # You can animate the protocol
@@ -144,25 +150,26 @@ ani=erase_sys.animate_protocol(mesh=30);
 HTML(ani.to_jshtml(fps=5))
 
 #you can save the animation by passing save=True into the argument of the .animate_lattice
-#or just use ani.save etc... like a normal matplotlib animation object (this is probably preferable)
+#or just use ani.save etc... like a normal matplotlib animation object
 
 #animating the protocol is a bit slow, but I haven't worked on optimizing it at all because 
 #it shouldnt affect simulation time. Its a diagnostic tool.
 # -
 
-#to see just a certain point in time use show_potential, surface determines if we see a wireframe or a contour plot.
-erase_sys.show_potential(.6, surface=True)
+#to see just a certain point in time, t,  use show_potential(t)
+# the surface determines if we see a wireframe or a contour plot.
+erase_sys.show_potential(.4, surface=True)
 
 # +
 # you can pull out forces, the potential, or the energy given a set of coordiantes and a time 
-potentials=erase_sys.get_potential(coords_2D,.7)
-print('potentials for trials 11-15:',potentials[10:15])
+potentials=erase_sys.get_potential(coords_2D, .7)
+print('potentials for trials 11-15:', potentials[10:15])
 
 
 # the output for forces is in the form (N,D): N sets of D forces
-forces=erase_sys.get_external_force(coords_2D,.5)
+forces=erase_sys.get_external_force(coords_2D, .5)
 print('forces for trial 4:{}'.format(forces[3]))
-print('forces in the "y" direction for all trials 1-4:',forces[0:4,1])
+print('forces in the "y" direction for all trials 1-4:', forces[0:4,1])
 # -
 
 # # Creating new potentials and protocols
@@ -172,14 +179,35 @@ print('forces in the "y" direction for all trials 1-4:',forces[0:4,1])
 # $$ V= - e^{-\frac{ax^2+by^2}{T}} $$
 #
 # ##### We have 3 parameters to deal with. All we need to do is make a function to give us the potential and the force
+# ##### It is good practice to stick to the following docstring format when making the potential function.
+# ##### It makes it easier to collaborate with others/yourself.
 
 # +
 from numpy import exp as exp
 
 def exp_well_pot(x, y, params):
+    '''
+    2D potential, an exponential well centered at (0,0)
+    with a variable aspect ratio
+    
+    Parameters
+    ----------
+    x,y : ndarray of dimension [N_coord,]
+        these are lists of the x and y values where we want to find the potential
+    params: list/tuple (1,2,3)
+        1,2 : the scale at which the x and y directions change the value of the potential
+        3: the overall 'temperature' scale: affects both x and y directions equally
+        
+    Returns
+    -------
+    the value of the potential at locations x,y with the given params
+    '''
     a, b, T = params
     return(-exp(-(a*x**2+b*y**2)/T))
 def exp_well_force(x, y, params):
+    '''
+    See the exp_well_pot function, it has the same input format
+    '''
     a, b, T = params
     dx= 2*a*x*exp(-(a*x**2+b*y**2)/T)/T
     dy= 2*a*y*exp(-(a*x**2+b*y**2)/T)/T
@@ -198,16 +226,20 @@ exp_well=Potential(exp_well_pot,exp_well_force,3,2)
 # by passing a list of the default parameters
 # such as exp_well=Potential(exp_well_pot, exp_well_force, 3, 2, default_params=(3,8,.1))
 
-trivial_system=System(exp_well.trivial_protocol(),exp_well)
+# additionally, you can set a relevant domain: range of coordiantes you expect to care about:
+# domain = ((-3,-2), (3,2)) would set the x and y domains to be [-3,3] and [-2,2], respectively 
+# exp_well=Potential(exp_well_pot, exp_well_force, 3, 2, relevant_domain=domain)
+
+trivial_system = System(exp_well.trivial_protocol(),exp_well)
 # -
 
-trivial_system.show_potential(.5,x_min=-1,x_max=1,y_min=-1,y_max=1)
+trivial_system.show_potential(0)
 
 # +
-# Generally,  we want make our protocol that will operate on the potential. 
+# Generally,  we want make a protocol that will operate on the potential. 
 # This protocol will go from t=0 to t=.6
 t=(0,.6)
-#we'll a totally symmetric well (a=1,b=1,T=1) and end with a deformed well at the same T (a=.5,b=2,T=1) 
+#we'll interpolate from a totally symmetric well (a=1,b=1,T=1) to a deformed well at the same T (a=.5,b=2,T=1) 
 params=((1,.2),(1,3),(1,1))
 
 #now, we make a protocol. WSP is short for well_stetch_protocol
@@ -223,8 +255,8 @@ well_stretch=System(WSP,exp_well)
 
 well_stretch.show_potential(0)
 
-#you can specify the window, if you want. The default is (0,1) though this might change to be an adaptive default
-well_stretch.show_potential(.5,x_min=-1,x_max=1,y_min=-1,y_max=1)
+#you can specify a manual domain, if you want.
+well_stretch.show_potential(.5)
 
 # -
 
@@ -272,23 +304,23 @@ print("initial time is:",WSP_rev.t_i,"final time is:",WSP_rev.t_f)
 SAR_prot=Compound_Protocol((WSP_rev,WSP))
 SAR_prot.show_substage_times()
 
-#its okay that there is some dead space between the protocol steps, the protocol assumes that to mean that we keep
+#it's okay that there is some dead space between the protocol steps, the protocol assumes that to mean that we keep
 #the parameters constant in the meantime.
 # -
 
 #now we can apply the compound protocol made of stretch and unstretch:
 stretch_and_rev=System(SAR_prot,exp_well)
 
-# +
-
 # now we can see the whole protocol:
-ani=stretch_and_rev.animate_protocol(surface=False,x_min=-1,x_max=1,y_min=-1,y_max=1)
+# well put a manual domain in the animate_protocol method, because if we dont the well 
+# will stretch far out of our default domain of -2,2
+ani=stretch_and_rev.animate_protocol(surface=False, manual_domain = ((-3, -2), (3, 2)) )
 HTML(ani.to_jshtml(fps=10))
 #note that parameters are held fixed between the explicit substages to fill in the gaps
 
 # +
 # we can also edit protocols that we have already made with the Protocol.change_param method
-# lets say we want the first parameter in our reverse process to actually go from .2 to 3 instead of back to 1
+# lets say we want the first parameter in our reverse process to actually go from .2 to 3 instead of down to 1
 
 print(WSP_rev.params)
 #we now call the change_param method, which takes in which parameters you want to change 
@@ -299,7 +331,7 @@ print(WSP_rev.params)
 
 # -
 
-#now on top of this, what if we want to make the second stage of the protocol take longer
+# if we want to make the WSP_rev stage of the protocol take longer
 # we can use Protocol.time_stretch for that
 print(WSP_rev.t_i,WSP_rev.t_f)
 WSP_rev.time_stretch(3)
@@ -309,7 +341,7 @@ print(WSP_rev.t_i,WSP_rev.t_f)
 # +
 new_sys=System(Compound_Protocol((WSP,WSP_rev)), exp_well)
 
-ani=new_sys.animate_protocol(surface=False,x_min=-1,x_max=1,y_min=-1,y_max=1)
+ani=new_sys.animate_protocol(surface=False)
 HTML(ani.to_jshtml(fps=10))
 
 
@@ -329,44 +361,61 @@ HTML(ani.to_jshtml(fps=10))
 
 # +
 def five_d_sphere(x1, x2, x3, x4, x5, params):
-    r,V0=params
-    pos=x1,x2,x3,x4,x5
+    '''
+    fairly useless 5D hard sphere 'well'
+    
+    Parameters
+    ----------
+    x1, x2, x3, x4, x5: ndarray of dimension [N_coords,]
+        these are your coordinates
+    params: list/tuple (1,2):
+        1: r, the radius of the sphere
+        2: V0, the magnitude of the potential when you are inside the sphere
+    
+    Returns
+    -------
+    the value of the potential at the coordinates, for the params
+    '''
+    r, V0=params
+    pos=x1, x2, x3, x4, x5
     distance=np.sqrt(np.sum(np.square(pos), axis=0))
     
-    return  V0*(1-np.sign(distance-r))/2
-    #return distance
+    return  V0 * (1 - np.sign(distance - r)) / 2
 
 def five_d_sphere_f(x1, x2, x3, x4, x5, params):
+    '''
+    See the five_d_sphere function, it has the same input format
+    '''
     r,V0 = params
-    pos = x1,x2,x3,x4,x5
+    pos = x1, x2, x3, x4, x5
     
-    return(0,0)
+    return(0, 0)
 
 #note that the way it is set up makes really high dimensional potentials kind of annoying to write. 
 #this can be changed if there is reason to.
 
-fds=Potential(five_d_sphere,five_d_sphere_f,2,5)
-fds_t=(0,1)
-fds_p=((.5,1.8),(-1,0))
-fds_sys=System(Protocol(fds_t,fds_p),fds)
+fds=Potential(five_d_sphere, five_d_sphere_f, 2, 5)
+fds_times=(0,1)
+fds_params=((.5,1.8),(-1,0))
+fds_sys=System(Protocol(fds_times,fds_params),fds)
 
 # +
-#when you call show_potential, we now take a 2-d slice of the potential, 
+# when you call show_potential, we now take a 2-d slice of the potential, 
 # sets all other coordinates to zero by default, and automatically chooses the first 2 coordinates
 
-#below is a slice that shows what happens at 0=x2=x4=x5, and varying x1 and x3
+# below is a slice that shows what happens at 0=x2=x4=x5, and varying x1 and x3
 # -
 
-fds_sys.show_potential(.5,surface=True,x_min=-2,x_max=2,y_min=-2,y_max=2,axis1=1,axis2=3)
+fds_sys.show_potential(.5,surface=True, axis1=1,axis2=3)
 
-#we can also set the slice values
-slice_val=(0,.6,0,.6,.2)
-#here it will set x3=0, x4=.6, and x5=.2 while varying x1 and x2 (defaul axes)
-fds_sys.show_potential(.5,surface=True,x_min=-2,x_max=2,y_min=-2,y_max=2,slice_values=slice_val)
+# we can also set the slice values
+slice_vals=(0,.6,0,.6,.2)
+# here it will set x3=0, x4=.6, and x5=.2 while varying x1 and x2 (defaul axes)
+fds_sys.show_potential(.5,surface=True, slice_values=slice_vals)
 
 # again, we can animate. default axis and slice is the same as show_potential
 # mesh control the numbe of points we calcualte the potential at
-ani = fds_sys.animate_protocol(surface=True, mesh=100, x_min=-2,x_max=2,y_min=-2,y_max=2, axis1=2, axis2=3)
+ani = fds_sys.animate_protocol(surface=True, mesh=30, axis1=2, axis2=3)
 HTML(ani.to_jshtml(fps=10))
 
 # # Bonus practice
@@ -375,14 +424,26 @@ HTML(ani.to_jshtml(fps=10))
 
 odv.info()
 
+odv.info(verbose=True)
+
 # +
 #make a protocol
+
+#EXAMPLE:
+    #p1=(3,.1)
+    #p2=(-.5,.5)
+    #t=(0,1)
+    #odv_prot = Protocol(t, (p1,p2)) 
+
 # -
 
 
 
+
 # +
-#make a system
+# make a system
+# EXAMPLE:
+#    odv_sys=System(odv_prot, odv)
 # -
 
 
@@ -393,8 +454,10 @@ odv.info()
 # we can use the function sequential_protocol for this.
 from protocol_designer.protocol import sequential_protocol
 
+sequential_protocol?
+
 # +
-# as an example, lets apply Alec's version of the Szilard Engine. This operates on the Duffing_2D potential
+# as an example, let's make Alec's version of the Szilard Engine. This operates on the coupled Duffing_2D potential
 from protocol_designer.potentials import duffing_2D
 
 #out of the 7 possible parameters in this potential, 3 of them are held fixed at the default value for
@@ -425,14 +488,13 @@ NP=7
 szilard_prot_1 = sequential_protocol(NS, NP, which, non_triv_param, initial_params=duffing_2D.default_params )
 
 szil_sys=System(szilard_prot_1, duffing_2D)
-L=2
-ani=szil_sys.animate_protocol(frames=50, surface=False,x_min=-L,x_max=L,y_min=-L,y_max=L)
+ani=szil_sys.animate_protocol(frames=50, surface=False)
 HTML(ani.to_jshtml(fps=5))
 
 # note that the function automatically makes NS substages of equal length between t=0 and t=1
 # if you want to customize the times, then you can pass a list of length NS+1 to define
 # the substage times:
-t_list=(0,.5,.75,1,1.5,2,2.2,2.8,3,4,5,6,6.3)
+t_list=(0, .5, .75, 1, 1.5, 2, 2.2, 2.8, 3, 4, 5, 6, 6.3)
 szilard_prot_2 = sequential_protocol(NS, NP, which, non_triv_param, times=t_list, initial_params=duffing_2D.default_params)
 
 szilard_prot_2.show_substage_times()
@@ -442,93 +504,43 @@ szilard_prot_2.show_substage_times()
 from szilard_protocols import ew2_szilard as exp_szilard
 system=exp_szilard
 
-r=.5
+# +
+# the above is a different implementation of szilards engine, using exponentially localized wells
+# -
+
+system.potential.info(verbose=True)
+
+#the default locations of the wells are at locations (-1,-1), (1,1), etc... (parameters 9-16)
+system.potential.default_params
+
+# +
+# lets say we want to make them all be closer to the origin, we can edit the protocol.parameters arttribute
+# but it is a little tricky because this is a many-substage protocol,
+# so well need to edit the parameters for each substage
+
+# substages are stored in the Compound_Protocol.protocols
+
+# one way to do this is to loop through each protocol in protocols and use the change_param method
+
+# +
+r=.6
+new_params= r* system.protocol.params[8:16]
 for item in system.protocol.protocols:
-    item.change_param((9,10,11,12,13,14,15,16),((-r,-r),(-r,-r),(-r,-r),(r,r),(r,r),(-r,-r),(r,r),(r,r)))
+    item.change_param((9,10,11,12,13,14,15,16),new_params)
 
-sysanim=system.animate_protocol(surface=True, x_min=-1, x_max=1, y_min=-1, y_max=1)
-HTML(sysanim.to_jshtml(fps=8))
-
-system2=system.copy()
-r=.8
-for item in system2.protocol.protocols:
-    item.change_param((9,10,11,12,13,14,15,16),((-r,-r),(-r,-r),(-r,-r),(r,r),(r,r),(-r,-r),(r,r),(r,r)))
-
-
-sysanim=system2.animate_protocol(surface=True, x_min=-1, x_max=1, y_min=-1, y_max=1)
-HTML(sysanim.to_jshtml(fps=8))
-
-# +
-from protocol_designer.protocol import Protocol, Compound_Protocol, sequential_protocol
-from protocol_designer.potentials import Potential, duffing_2D, blw, exp_wells_2D
-from protocol_designer.system import System
-# ADD
-# 1,2,3,4:                                  barrier heights for L0:L1,R0:R1,L0:R0,L1:R1      (0,1)
-# 5,6,7,8:                                  well depths for L0,L1,R0,R1,                     (absolute)
-# (9,10),(11,12),(13,14),(15,16):           (x,y) coordiantes of the L0,L1,R0,R1 wells       (absolute)
-
-# Flip #
-
-#L0L1 = (1, 1, 1, 1, 1)
-#R0R1 = (1, 1, 0, 1, 1)
-# L0R0 
-# L1R1 
-# L0 
-# L1
-#R0 = (1, 1, 2, 2, 1)
-# R1
-# L0 x,y
-L1_x = (-1, 0, 1)
-L1_y = (1, .5, 1)
-# R0 x,y
-R1_x = (1, 0, -1)
-R1_y = (1, 2, 1)
-which_p = (11, 12, 15, 16)
-ntp = (L1_x, L1_y, R1_x, R1_y)
-
-exp_flip_prot = sequential_protocol(2, 16, which_p, ntp, initial_params=exp_wells_2D.default_params)
-
-# Erase #
-
-#L0L1 = (1, 1, 1, 1, 1)
-R0R1 = (1, 0, 0, 1, 1)
-# L0R0 
-# L1R1 
-# L0 
-# L1
-R0 = (1, 1, 2, 2, 1)
-# R1
-
-
-which_p = (2, 7)
-
-ntp = (R0R1, R0)
-
-exp_R_erase_prot = sequential_protocol(4, 16, which_p, ntp, initial_params=exp_wells_2D.default_params)
-exp_R_erase_prot.time_shift(1)
-
-
-# +
-p_rots=[]
-for item in exp_flip_prot.protocols:
-    p_rots.append(item)
-
-for item in exp_R_erase_prot.protocols:
-    p_rots.append(item)
+#if we wanted to do this in a non destructive way, we could first make a new copy
+#    new_sys = system.copy()
+#    and then operate on new_sys
 
 # -
 
-len(p_rots)
+sysanim=system.animate_protocol(surface=True)
+HTML(sysanim.to_jshtml(fps=8))
 
 # +
-
-exp_add_prot = Compound_Protocol(p_rots)
-
-exp_add = System(exp_add_prot, exp_wells_2D)
-
+# though this tutorial has gotten prety long, so maybe we'll stop here.
+# a separate notebook will detail how we use the system class in conjunction
+# with the infoenginessims package.
 # -
-
-sysanim=exp_add.animate_protocol(surface=True, x_min=-2, x_max=2, y_min=-1.5, y_max=3)
-HTML(sysanim.to_jshtml(fps=8))
 
 
