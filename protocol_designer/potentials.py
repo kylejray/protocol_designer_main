@@ -174,6 +174,59 @@ def one_D_V_force(x, params):
 odv = Potential(one_D_V, one_D_V_force, 2, 1)
 
 
+def e_well_3D(x, y, z, params):
+    """
+    A simple 1D potential, for testing one dimensional systems
+    its just an absolute value.
+
+    Parameters
+    ----------
+    x, y, z: the coordinates
+    params: (1,2)
+        1: the slope
+        2: zero point
+
+    Returns
+    -------
+    the value of the potential at location x with the given params
+    """
+
+    a, b, x_0, y_0, z_0 = params
+    return -a * np.exp(-b * ((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2))
+
+
+def e_well_3D_force(x, y, z, params):
+    """
+    See exp_well_3D function, it has the same input format.
+    """
+    a, b, x_0, y_0, z_0 = params
+    dx = 2 * a * b * (x-x_0) * np.exp(-b * ((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2))
+    dy = 2 * a * b * (y-y_0) * np.exp(-b * ((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2))
+    dz = 2 * a * b * (z-z_0) * np.exp(-b * ((x-x_0)**2 + (y-y_0)**2 + (z-z_0)**2))
+    return (-dx, -dy, -dz)
+
+
+ew_3D = Potential(e_well_3D, e_well_3D_force, 5, 3)
+
+
+def five_d_test(x1, x2, x3, x4, x5, params):
+    slope = params
+    return slope * (np.abs(x1) + np.abs(x2) + np.abs(x3) + np.abs(x4) + np.abs(x5))
+
+
+def five_d_test_force(x1, x2, x3, x4, x5, params):
+    slope = params
+    dx1 = slope * (np.abs(x2) + np.abs(x3) + np.abs(x4) + np.abs(x5))
+    dx2 = slope * (np.abs(x1) + np.abs(x3) + np.abs(x4) + np.abs(x5))
+    dx3 = slope * (np.abs(x1) + np.abs(x2) + np.abs(x4) + np.abs(x5))
+    dx4 = slope * (np.abs(x1) + np.abs(x2) + np.abs(x3) + np.abs(x5))
+    dx5 = slope * (np.abs(x1) + np.abs(x2) + np.abs(x3) + np.abs(x4))
+    return (-dx1, -dx2, -dx3, -dx4, -dx5)
+
+
+fdt = Potential(five_d_test, five_d_test_force, 1, 5)
+
+
 def coupled_duffing_2D(x, y, params):
     """
     the coupled 2D duffing potential:
@@ -458,3 +511,189 @@ exp_defaults = (1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, 1, 1, -1, 1, 1)
 exp_wells_2D = Potential(
     exp_potential, exp_potential_force, 16, 2, default_params=exp_defaults
 )
+
+
+def even_parity_1D_well(x, params):
+    """
+    1D double well potential using just even parity terms x^2 and x^4:
+        a*x^4 + (b/2)*x^2
+
+    Parameters
+    ----------
+    x: ndarray of dimension [N,]
+        the x coordinates for N positions
+    params: list/tuple (1, 2)
+        1, 2 : coefficients of the x^4 and x^2 terms, respectively
+
+    Returns
+    -------
+    the value of the potential at locations x,y with the given params
+    """
+
+    a, b = params
+    return a * x ** 4 + (b/2) * x ** 2
+
+
+def even_parity_1D_well_force(x, params):
+    """
+    see even_parity_1D_well function documentation
+    """
+
+    a, b = params
+    return -4 * a * x ** 3 - 2 * (b/2) * x
+
+
+even_1DW_defaults = (1, -8)
+even_1DW = Potential(even_parity_1D_well, even_parity_1D_well_force, 2, 1, default_params=even_1DW_defaults)
+
+
+def asym_1D_well(x, params):
+    """
+    1D asymetric double well potential using just even parity terms x^2 and x^4. coefficients for x<0 and x>0 can vary.
+
+    Parameters
+    ----------
+    x: ndarray of dimension [N,]
+        the x coordinates for N positions
+    params: list/tuple (1, 2, 3, 4)
+        1, 2, 3, 4 : 1,2 are coefficients of the x^4 terms and  3,4  of the x^2 terms, respectively
+
+    Returns
+    -------
+    the value of the potential at locations x,y with the given params
+    """
+
+    a1, a2, k1, k2 = params
+    return np.heaviside(x, 0) * (a1 * x ** 4 + (k1/2) * x ** 2) + np.heaviside(-x, 0) * (a2 * x ** 4 + (k2/2) * x ** 2)
+
+
+def asym_1D_well_force(x, params):
+    """
+    see even_parity_1D_well function documentation
+    """
+
+    a1, a2, k1, k2 = params
+    return np.heaviside(x, 0) * (-4 * a1 * x ** 3 - k1 * x) + np.heaviside(-x, 0) * (-4 * a2 * x ** 3 - k2 * x)
+
+
+asym_1DW_defaults = (1, 1, -16, -16)
+
+asym_1DW = Potential(asym_1D_well, asym_1D_well_force, 4, 1, default_params=asym_1DW_defaults)
+
+
+def exp_well_3D(x, y, z, depth, localization, x0, y0, z0):
+    U = - depth * np.exp(-localization*((x-x0)**2 + (y-y0)**2 + (z-z0)**2))
+    fx = 2 * localization * depth * (x-x0) * U
+    fy = 2 * localization * depth * (y-y0) * U
+    fz = 2 * localization * depth * (z-z0) * U
+    return U, (fx, fy, fz)
+
+
+def stability_3D(x, y, z, s=.2):
+    U = s*(x**4 + y**4 + z**4)
+    fx = - 4*s*x**3
+    fy = - 4*s*x**3
+    fz = - 4*s*x**3
+    return U, (fx, fy, fz)
+
+
+def symmetric_exp_wells_3D_pot(x, y, z, params):
+    D, L, loc = params
+    well_positions = [(-L, -L, -L),
+                      (-L, -L, L),
+                      (-L, L, -L),
+                      (-L, L, L),
+                      (L, -L, -L),
+                      (L, -L, L),
+                      (L, L, -L),
+                      (L, L, L),
+                      ]
+    wells = []
+    for item in well_positions:
+        wells.append(exp_well_3D(x, y, z, D, loc, *item)[0])
+
+    wells.append(stability_3D(x, y, z, s=.2)[0])
+
+    U = 0
+    for item in wells:
+        U = np.add(U, item)
+    return U
+
+
+def symmetric_exp_wells_3D_force(x, y, z, params):
+    D, L, loc = params
+    well_positions = [(-L, -L, -L),
+                      (-L, -L, L),
+                      (-L, L, -L),
+                      (-L, L, L),
+                      (L, -L, -L),
+                      (L, -L, L),
+                      (L, L, -L),
+                      (L, L, L),
+                      ]
+    wells = []
+    for item in well_positions:
+        wells.append(exp_well_3D(x, y, z, D, loc, *item)[1])
+
+    wells.append(stability_3D(x, y, z, s=.2)[1])
+
+    f = np.zeros((3, *np.shape(x)))
+    for item in wells:
+        f = np.add(f, item)
+    return f
+
+
+symm_3D_wells = Potential(symmetric_exp_wells_3D_pot, symmetric_exp_wells_3D_force, 3, 3, default_params=(10, 1, 8))
+
+
+def fredkin_flip_pot(x, y, z, params):
+    """
+    3D 8-well potential. Used to implement a fredkin gate
+
+    Parameters
+    ----------
+    x: ndarray of dimension [N,]
+        the x coordinates for N positions
+    params: list/tuple (1, 2, 3, 4)
+        1, 2, 3, 4 : 1,2 are the coefficients of the 4th and 2nd order terms in the storage potential
+                     3 turns off the y-z subspace storage potential fir x>0. Should genrally be 0(storage on) or 1(storage off)
+                     4 is the k-value of the computational potential that implements the swap (like spring contant k)
+
+    Returns
+    -------
+    the value of the potential at locations x,y with the given params
+    """
+    a, b, s, k = params
+    r2 = np.sqrt(2)
+    yp = (y-z)/r2
+    zp = (y+z)/r2
+
+    U0 = a*(x**4 + y**4 + z**4) + b*(x**2 + y**2 + z**2)
+    U1 = U0 + s*(-a * (y**4 + z**4) - b * (y**2 + z**2) + k*(yp**2/2 + 2*zp**2))
+
+    return np.heaviside(-x, 0) * U0 + np.heaviside(x, 0) * U1
+
+
+def fredkin_flip_force(x, y, z, params):
+    a, b, s, k = params
+    r2 = np.sqrt(2)
+    yp = (y-z)/r2
+    zp = (y+z)/r2
+
+    U0_dx = 4*a*(x**3) + 2*b*x
+    U0_dy = 4*a*(y**3) + 2*b*y
+    U0_dz = 4*a*(z**3) + 2*b*z
+    U1_dx = U0_dx
+    U1_dy = U0_dy + s * (-4 * a * y**3 - 2 * b * y + k * (yp/r2 + 4*zp/r2))
+    U1_dz = U0_dz + s * (-4 * a * z**3 - 2 * b * z + k * (-yp/r2 + 4*zp/r2))
+
+    fx = -np.heaviside(-x, 0) * U0_dx - np.heaviside(x, 0) * U1_dx
+    fy = -np.heaviside(-x, 0) * U0_dy - np.heaviside(x, 0) * U1_dy
+    fz = -np.heaviside(-x, 0) * U0_dz - np.heaviside(x, 0) * U1_dz
+
+    return (fx, fy, fz)
+
+
+fp_def_param = (2, -16, 0, 0)
+fp_domain = ((-3, -3, -3), (3, 3, 3))
+fredkin_pot = Potential(fredkin_flip_pot, fredkin_flip_force, 4, 3, default_params=fp_def_param, relevant_domain=fp_domain)

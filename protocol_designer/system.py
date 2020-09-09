@@ -31,6 +31,7 @@ class System:
     def __init__(self, protocol, potential):
         self.protocol = protocol
         self.potential = potential
+        self.has_velocity = True
         msg = "the number of protocol parameters must match the potential"
         assert (
             len(self.protocol.get_params(self.protocol.t_i)) == self.potential.N_params
@@ -66,11 +67,13 @@ class System:
         U+T : ndarray of dimension [N_c,]
 
         """
-
-        v = coords[:, :, 1]
         U = self.get_potential(coords, t)
-        T = np.sum(0.5 * np.square(v), axis=1)
-        return U + T
+        if self.has_velocity:
+            v = coords[:, :, 1]
+            T = np.sum(0.5 * np.square(v), axis=1)
+            return U + T
+        else:
+            return U
 
     def get_potential(self, coords, t):
         """
@@ -92,7 +95,10 @@ class System:
 
         """
         params = self.protocol.get_params(t)
-        positions = np.transpose(coords[:, :, 0])
+        if self.has_velocity:
+            positions = np.transpose(coords[:, :, 0])
+        else:
+            positions = np.transpose(coords)
 
         return self.potential.potential(*positions, params)
 
@@ -116,73 +122,87 @@ class System:
         U : ndarray of dimension [N_c, N_d]
 
         """
+        
         params = self.protocol.get_params(t)
-        positions = np.transpose(coords[:, :, 0])
-        F = np.zeros((len(coords[:, 0, 0]), self.potential.N_dim))
-        force = self.potential.external_force(*positions, params)
-        for i in range(0, self.potential.N_dim):
-            F[:, i] = force[i]
+        if self.has_velocity:
+            positions = np.transpose(coords[..., 0])
+        else:
+            positions = np.transpose(coords)
 
-        return F
+        if self.potential.N_dim == 1:
+            force = self.potential.external_force(positions, params)
+        else:
+            force = self.potential.external_force(*positions, params)
 
-    def eq_state(self, Nsample,  t=None, resolution=1000, damped=None, manual_domain=None, axis1=1, axis2=2, slice_vals=None):
+        return np.transpose(force)
+
+    def eq_state(self, Nsample,  t=None, resolution=500, beta=1, M=1, manual_domain=None, axes=None, slice_vals=None):
         '''
         function still in development, docstring will come later.
         generates Nsample coordinates from an equilibrium distribution at
         time t.
 
         '''
+        if self.potential.N_dim >= 3 and (axes is None or len(axes) > 3):
+            if resolution > 100:
+                print('using a lower resolution for searching a space in >2 dimensions')
+                resolution = 100
+
         NT = Nsample
         state = np.zeros((max(100, int(2*NT)), self.potential.N_dim, 2))
 
         def get_prob(self, state):
+            if self.has_velocity is False:
+                state = state[:, :, 0]
             E_curr = self.get_energy(state, t)
             Delta_U = E_curr-U0
             return np.exp(-Delta_U)
 
-        x_min, x_max, y_min, y_max = self.get_domain(axis1, axis2, domain=manual_domain)
-        mins = (x_min, y_min)
-        maxes = (x_max, y_max)
-
         if t is None:
             t = self.protocol.t_i
 
-        U = self.lattice(t, resolution, x_min, x_max, y_min, y_max, axis1, axis2, slice_values=slice_vals)[0]
+        U, X = self.lattice(t, resolution, axes=axes, slice_values=slice_vals, manual_domain=manual_domain)
+        mins = []
+        maxes = []
+        for item in X:
+            mins.append(np.min(item))
+            maxes.append(np.max(item))
 
         U0 = np.min(U)
         i = 0
 
+        if axes is None:
+            axes = [_ for _ in range(1, self.potential.N_dim + 1)]
+        axes = np.array(axes) - 1
+
         while i < Nsample:
-            n_coords = 2
-            if self.potential.N_dim == 1:
-                n_coords = 1
-            test_coords = np.zeros((NT, n_coords, 2))
-            test_state = np.copy(test_coords)
+            test_coords = np.zeros((NT, self.potential.N_dim, 2))
             if slice_vals is not None:
                 test_state[:, :, 0] = slice_vals
 
-            if n_coords == 1:
-                test_coords[:, :, 0] = np.random.uniform(x_min, x_max, (NT, n_coords))
-            if n_coords == 2:
-                test_coords[:, :, 0] = np.random.uniform(mins, maxes, (NT, n_coords))
-            if damped is None:
-                test_coords[:, :, 1] = np.random.normal(0, 1, (NT, n_coords))
-            if n_coords == 2:
-                test_state[:, axis1-1, :] = test_coords[:, 0, :]
-                test_state[:, axis2-1, :] = test_coords[:, 1, :]
-            if n_coords == 1:
-                test_state = test_coords
+            test_coords[:, axes, 0] = np.random.uniform(mins, maxes, (NT, len(axes)))
 
-            p = get_prob(self, test_state)
+            p = get_prob(self, test_coords)
+
             decide = np.random.uniform(0, 1, NT)
             n_sucesses = np.sum(p > decide)
             if i == 0:
-                ratio = max(n_sucesses/NT, .1)
-            state[i:i+n_sucesses, :, :] = test_state[p > decide, :, :]
+                ratio = max(n_sucesses/NT, .05)
+
+            state[i:i+n_sucesses, :, :] = test_coords[p > decide, :, :]
             i = i + n_sucesses
+            print("found {} samples out of {}".format(i, Nsample), end="\r")
+
             NT = max(int((Nsample-i)/ratio), 100)
+
         state = state[0:Nsample, :, :]
-        return(state)
+
+        if self.has_velocity:
+            state[:, :, 1] = np.random.normal(0, np.sqrt(beta/M), (Nsample, self.potential.N_dim))
+        else:
+            return state[:, :, 0]
+
+        return state
 
     def show_potential(
         self,
@@ -228,29 +248,20 @@ class System:
         -------
         no returns, just plots a figure
         """
+        if self.potential.N_dim >= 2 and axis2 is not None:
+            U, X_mesh = self.lattice(t, resolution, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain)
+            X = X_mesh[0]
+            Y = X_mesh[1]
 
-        x_min, x_max, y_min, y_max = self.get_domain(axis1, axis2, domain=manual_domain)
-
-        if self.potential.N_dim >= 2:
-            U, X, Y = self.lattice(
-                t, resolution, x_min, x_max, y_min, y_max, axis1, axis2, slice_values
-            )
-
+            x_min, x_max = np.min(X), np.max(X)
+            y_min, y_max = np.min(Y), np.max(Y)
             if surface is False:
                 fig, ax = plt.subplots()
                 CS = ax.contour(X, Y, U, contours)
                 # ax.clabel(CS, inline=1, fontsize=10)
-                ax.set_xlabel("x")
-                ax.set_ylabel("y")
-                ax.text(
-                    x_min - 0.1 * (x_max - x_min),
-                    y_min - 0.1 * (y_max - y_min),
-                    "t={:.2f}".format(t),
-                    horizontalalignment="right",
-                    verticalalignment="top",
-                    fontsize=12,
-                    color="k",
-                )
+                ax.set_xlabel('x{}'.format(axis1))
+                ax.set_ylabel('x{}'.format(axis2))
+                ax.set_title("t={:.2f}".format(t))
 
                 plt.show()
 
@@ -258,34 +269,25 @@ class System:
                 fig = plt.figure()
                 ax = fig.add_subplot(111, projection="3d")
                 ax.plot_wireframe(X, Y, U)
-                ax.set_xlabel("x")
-                ax.set_ylabel("y")
-                ax.text(
-                    -0.3,
-                    -0.3,
-                    0,
-                    "t={:.2f}".format(t),
-                    horizontalalignment="center",
-                    verticalalignment="top",
-                    fontsize=12,
-                    color="k",
-                )
+                ax.set_xlabel('x{}'.format(axis1))
+                ax.set_ylabel('x{}'.format(axis2))
+                ax.set_title("t={:.2f}".format(t))
 
                 plt.show()
-        if self.potential.N_dim == 1:
-            U, X = self.lattice(t, resolution, x_min, x_max, y_min, y_max)
+
+        if self.potential.N_dim == 1 or axis2 is None:
+            U, X_mesh = self.lattice(t, resolution, axes=[axis1], slice_values=slice_values, manual_domain=manual_domain)
+            X = X_mesh[0]
+            Y = U[0]
+            x_min, x_max = np.min(X), np.max(X)
+            y_min, y_max = np.min(Y), np.max(Y)
             fig, ax = plt.subplots()
-            ax.plot(X, U)
+            ax.plot(X, Y)
             ax.set_xlabel("x")
-            ax.text(
-                x_min - 0.1 * (x_max - x_min),
-                y_min - 0.1 * (y_max - y_min),
-                "t={:.2f}".format(t),
-                horizontalalignment="right",
-                verticalalignment="top",
-                fontsize=12,
-                color="k",
-            )
+            ax.set_xlabel("U")
+            ax.set_title("t={:.2f}".format(t))
+
+        return fig, ax
 
     def animate_protocol(
         self,
@@ -337,7 +339,6 @@ class System:
         anim: animation.FuncAnimate object
 
         """
-        x_min, x_max, y_min, y_max = self.get_domain(axis1, axis2, domain=manual_domain)
         t_i = self.protocol.t_i
         t_f = self.protocol.t_f
         t = np.linspace(t_i, t_f, frames)
@@ -345,17 +346,16 @@ class System:
         if self.potential.N_dim == 1:
 
             U_array = np.zeros((mesh, frames))
-            U_array[:, 0], X = self.lattice(t_i, mesh, x_min, x_max, y_min, y_max)
+            U_array[:, 0], X = self.lattice(t_i, mesh, axes=[axis1], slice_values=slice_values, manual_domain=manual_domain)
 
             for idx, item in enumerate(t):
-                U_array[:, idx] = self.lattice(item, mesh, x_min, x_max, y_min, y_max)[
-                    0
-                ]
+                U_array[:, idx] = self.lattice(item, mesh, axes=[axis1], slice_values=slice_values, manual_domain=manual_domain)[0]
 
             fig, ax = plt.subplots()
             (line,) = ax.plot([], [])
             ax.set_xlabel("x")
             ax.set_ylabel("U")
+            x_min, x_max = np.min(X), np.max(X)
             ax.set_xlim(x_min, x_max)
             ax.set_ylim(U_array.min(), U_array.max())
 
@@ -389,17 +389,19 @@ class System:
             return anim
 
         if self.potential.N_dim >= 2:
+
             U_array = np.zeros((mesh, mesh, frames))
             # T_array=np.zeros((mesh,mesh,frames))
             #
             # for idx,item in enumerate(t):
             #    T_array[:,:,idx]=item
-
-            U_array[:, :, 0], X, Y = self.lattice(t_i, mesh, x_min, x_max, y_min, y_max)
+            U_array[:, :, 0], X_mesh = self.lattice(t_i, mesh, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain)
+            X = X_mesh[0]
+            Y = X_mesh[1]
+            x_min, x_max = np.min(X), np.max(X)
+            y_min, y_max = np.min(Y), np.max(Y)
             for idx, item in enumerate(t):
-                U_array[:, :, idx] = self.lattice(
-                    item, mesh, x_min, x_max, y_min, y_max
-                )[0]
+                U_array[:, :, idx] = self.lattice(item, mesh, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain)[0]
 
             if surface:
 
@@ -451,8 +453,8 @@ class System:
 
             else:
                 fig, ax = plt.subplots(1, 1)
-                ax.set_xlabel("x")
-                ax.set_ylabel("y")
+                ax.set_xlabel("x{}".format(axis1))
+                ax.set_ylabel("x{}".format(axis2))
                 # cont = plt.contour(X,Y,U_array[:,:,0],50)
                 # ax.xaxis.tick_top()
                 # ax.invert_yaxis()
@@ -492,136 +494,80 @@ class System:
 
                 return anim
 
-    def get_domain(self, axis1, axis2, domain=None):
+    def lattice(self, t, resolution, axes=None, slice_values=None, manual_domain=None):
+
         """
-        a helper function used only internally by other methods
-        it is for deciding what the relevant domain is
-        for visualization purposes.
+        Helper function used internally by other pieces of code. Creates a
+        lattice of coordiantes and calculates the potential at those coordinates
+        at the given time
 
         Parameters
         ----------
 
-        axis1, axis2 : int
-            the coordinates you want to get the domain for, i.e. axis1=2 means
-            we are plotting the 'y' coordiante on the first axis
+            t: float
+                time of interest for the potential energy
 
-        domain: None, or array of dimension [2, N_d]
-            if None, we pull the domain from the potential.domain
-            if ndarray, a manual domain of the form [ (xmin,ymin,...), (xmax, ymax,...) ]
+            resolution: int
+                how many points we want to sample along each axis
 
-        Returns
-        -------
-        if a 1D potential:
+            axes: list of dimension <N_dim or None
+                which coordinates we want to sweep through for the potential
+                if None, will do all coordiantes
 
-        x_min, x_max, [], []: float
-            x_min, x_max is our relevant domain boundaries
-            y_min ,y_max are empty placeholder lists
 
-        if a 2D potential
+            slice_values: ndarray of dimension [N_d,] or None
+                these are the values we keep the other coordinates fixed at while sweeping through the selected axes
+                if None, sets all non-swept coordiantes to 0
 
-        x_min, x_max, y_min, y_max : floats
-            relevant domain boundaries for axis1 and axis2, respectively
-        """
-        if self.potential.N_dim == 1:
-            if domain is None:
-                x_min, x_max = self.potential.domain[:, axis1 - 1]
-                y_min, y_max = [], []
-            else:
-                x_min, x_max = domain[0], domain[1]
-                y_min, y_max = [], []
-        if self.potential.N_dim >= 2:
-            if domain is None:
-                x_min, x_max = self.potential.domain[:, axis1 - 1]
-                y_min, y_max = self.potential.domain[:, axis2 - 1]
-            else:
-                domain = np.asarray(domain)
-                x_min, x_max = domain[:, axis1 - 1]
-                y_min, y_max = domain[:, axis2 - 1]
-        return x_min, x_max, y_min, y_max
-
-    def lattice(
-        self,
-        t,
-        resolution,
-        x_min,
-        x_max,
-        y_min,
-        y_max,
-        axis1=1,
-        axis2=2,
-        slice_values=None,
-    ):
-
-        """
-        Helper function used internally by the visualization code. Creates a
-        1D or 2D lattice of coordiantes and calculates the potential at those coordinates
-
-        Parameters
-        ----------
-
-        t: float
-            time of interest for the potential energy
-
-        resolution: int
-            how many points we want to sample along each axis
-
-        x_min, x_max, y_min, y_max: float
-            min/max values of the horizontal and vertical axes, respectively
-
-        axis1, axis2: int
-            which coordinate we will consider to be 'x' and 'y' for the plot
-
-        slice_values: ndarray of dimension [N_d,]
-            there are the values we keep the other coordinates fixed at while sweeping through axis1 and axis2
+            manual_domain: ndarray of dimension [2, N_d]
+                lists a manual domain if you want to sweep a different domain than the potentials default values
 
         Returns
         -------
 
-        if 1D:
-            U: ndarray of dimension [resolution,]
-                the potential at our test points, X
+        U: ndarray of dimension [resolution, resolution, ...]
+            the potential at our test points, X_mesh has as many dimensions as len(axes) or N_dim if axes is None
 
-            X: ndarray of dimensiion [resolution]
-                array of our test points
-        if 2D:
-            U: ndarray of dimension [resolution, resolution]
-                the potential at our test points: X,Y
-
-            X,Y: np arrays of dimension [resolution, resolution]
-                X/Y gives the axis1/axis2 coordinates at each lattice point
-                they are the results of an np.meshgrid operation
+        X: ndarray of dimension [len(axes) or N_dim, shape(U)]
+            array of our test points
         """
         params = self.protocol.get_params(t)
 
-        if self.potential.N_dim == 2:
-            x = np.linspace(x_min, x_max, resolution)
-            y = np.linspace(y_min, y_max, resolution)
-            X, Y = np.meshgrid(x, y)
-
-            U = self.potential.potential(X, Y, params)
-
-            return (U, X, Y)
-
         if self.potential.N_dim == 1:
-            X = np.linspace(x_min, x_max, resolution)
-            U = self.potential.potential(X, params)
+            lims = self.potential.domain
+            if manual_domain is not None:
+                lims = manual_domain
+            x_vec = np.transpose(np.linspace(*lims, resolution))
+            U = self.potential.potential(x_vec, params)
+            return U, x_vec
 
-            return (U, X)
+        else:
+            if manual_domain is None:
+                lims = self.potential.domain
 
-        if self.potential.N_dim > 2:
-            axis1 = axis1 - 1
-            axis2 = axis2 - 1
+                if axes is None:
+                    axes = [_ for _ in range(1, self.potential.N_dim+1)]
 
-            if slice_values is None:
-                slice_values = [0] * self.potential.N_dim
+                axes = np.array(axes) - 1
+                lims = lims[:, axes]
 
-            x1 = np.linspace(x_min, x_max, resolution)
-            x2 = np.linspace(y_min, y_max, resolution)
-            X, Y = np.meshgrid(x1, x2)
+            else:
+                assert axes is not None, "when using a manual domain, must include the 'which_axes' keyword"
+                manual_domain = np.array(manual_domain)
+                axes = np.array(axes) - 1
+                lims = manual_domain[:, axes]
 
-            slice_list = list(slice_values)
-            slice_list[axis1] = X
-            slice_list[axis2] = Y
-            U = self.potential.potential(*slice_list, params)
+        x_vec = np.transpose(np.linspace(*lims, resolution))
+        X_mesh = np.meshgrid(*x_vec)
 
-            return (U, X, Y)
+        if slice_values is None:
+            slice_values = [0] * self.potential.N_dim
+
+        slice_list = list(slice_values)
+
+        for i, item in enumerate(axes):
+            slice_list[item] = X_mesh[i]
+
+        U = self.potential.potential(*slice_list, params)
+
+        return (U, X_mesh)

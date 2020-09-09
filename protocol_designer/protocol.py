@@ -24,6 +24,9 @@ class Protocol:
     N_params: int
         number of parameters in the protocol
 
+    interpolation: str, 'linear', 'step', or 'logistic'
+        interpolation method used to vary the parameter between t_i and t_f
+
     """
 
     def __init__(self, t, params):
@@ -32,6 +35,7 @@ class Protocol:
         self.t_i = float(t[0])
         self.t_f = float(t[1])
         self.N_params = len(self.params[:, 0])
+        self.interpolation = 'linear'
 
     def get_params(self, t):
         """
@@ -49,18 +53,22 @@ class Protocol:
             gives the value of each parameter at the input time
 
         """
+        if self.interpolation == 'linear':
+            interpolate = self.get_linear
+        if self.interpolation == 'step':
+            interpolate = self.get_step
 
         if t < self.t_i:
 
-            return self.get_linear(self.params[:, 0], self.params[:, 1], self.t_i)
+            return interpolate(self.params[:, 0], self.params[:, 1], self.t_i)
 
         if self.t_f < t:
 
-            return self.get_linear(self.params[:, 0], self.params[:, 1], self.t_f)
+            return interpolate(self.params[:, 0], self.params[:, 1], self.t_f)
 
         if self.t_i <= t and t <= self.t_f:
 
-            return self.get_linear(self.params[:, 0], self.params[:, 1], t)
+            return interpolate(self.params[:, 0], self.params[:, 1], t)
 
     def time_shift(self, dt):
         """
@@ -93,9 +101,10 @@ class Protocol:
         and ends at t_f=1, no inputs and no outputs
         """
         t_i = self.t_i
-        self.time_shift(-t_i)
         t_f = self.t_f
-        self.time_stretch(1 / t_f)
+        self.time_shift(-t_i)
+
+        self.time_stretch(1 / (t_f-t_i))
 
     def reverse(self):
         """
@@ -104,7 +113,7 @@ class Protocol:
         """
         self.params = np.flip(self.params, axis=1)
 
-    def change_param(self, which_params, new_params):
+    def change_params(self, which_params, new_params):
         """
         Manually changes some or all of the parameter values in the protocol.
         There are no returns
@@ -200,16 +209,25 @@ class Protocol:
         """
         basic linear interpolation function, used internally by other methods
         """
-
         return init + (t - self.t_i) * (final - init) / (self.t_f - self.t_i)
 
-    def get_logistic(self, init, final, t, ramp=5, offset=0):
+    def get_logistic(self, init, final, t):
         """
         basic logistic interpolation function, used internally by other methods
         """
+        ramp = 5
+        offset = 0
+
         delta_y = final - init
         t_scaled = t - (self.t_i + self.t_f) / 2
         return init + delta_y / (1 + np.exp(-ramp * (t_scaled - offset)))
+
+    def get_step(self, init, final, t):
+        """
+        basic step function interpolation function, used internally by other methods
+        """
+        return init + (final-init) * np.heaviside(t-self.t_f, .5)
+
 
 
 class Compound_Protocol(Protocol):
