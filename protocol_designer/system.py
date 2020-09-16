@@ -47,8 +47,35 @@ class System:
 
         """
         return copy.deepcopy(System(self.protocol, self.potential))
+    
+    def get_kinetic_energy(self, coords, mass):
+        '''
+        gives the kinetic energy of a set of coordinates where [..., 1] are the velocities
+        
+        Parameters
+        ----------
+        coords: ndarray of dimension [..., 2], conventionally [N_c, N_d, 2]
+            array of N_c sets of coordinates in N_d dimensions
+        mass: float or ndarray of length N_c
+            the masses of the particles
+        
+        Returns
+        -------
 
-    def get_energy(self, coords, t):
+        T: ndarray
+            The  N_c kinetic energies of the set of coordinates
+
+        if has_velocity is False, returns a 0
+        '''
+        if self.has_velocity:
+            velocity = coords[..., 1]
+            velocity_squared = np.sum(np.square(velocity), axis=np.size(np.shape(velocity))-1)
+            T = np.multiply(.5 * mass, velocity_squared)
+            return T
+        else:
+            return 0
+
+    def get_energy(self, coords, t, mass=1):
         """
         Calculate the energy of a particle at location coords at time t
 
@@ -60,6 +87,8 @@ class System:
 
         t: float or int
             time at which you want to evaluate the energy
+        mass: float
+            the mass of the particles, generally it makes sense to scale to the mass is 1
 
         Returns
         -------
@@ -69,11 +98,19 @@ class System:
         """
         U = self.get_potential(coords, t)
         if self.has_velocity:
-            v = coords[:, :, 1]
-            T = np.sum(0.5 * np.square(v), axis=1)
-            return U + T
+            T = self.get_kinetic_energy(coords, mass)
+            return T+U
         else:
             return U
+
+    def get_positions(self, coords):
+        '''
+        simple helper function that returns only the positions from a set of coordinates
+        '''
+        if self.has_velocity:
+            return np.transpose(coords[..., 0])
+        else:
+            return np.transpose(coords)
 
     def get_potential(self, coords, t):
         """
@@ -86,7 +123,7 @@ class System:
             array of N_c sets of coordinates in N_d dimensions
 
         t: float or int
-            time at which you want to evaluate the energy
+            time at which you want to evaluate the potential energy
 
         Returns
         -------
@@ -95,10 +132,7 @@ class System:
 
         """
         params = self.protocol.get_params(t)
-        if self.has_velocity:
-            positions = np.transpose(coords[:, :, 0])
-        else:
-            positions = np.transpose(coords)
+        positions = self.get_positions(coords)
 
         return self.potential.potential(*positions, params)
 
@@ -122,12 +156,9 @@ class System:
         U : ndarray of dimension [N_c, N_d]
 
         """
-        
+
         params = self.protocol.get_params(t)
-        if self.has_velocity:
-            positions = np.transpose(coords[..., 0])
-        else:
-            positions = np.transpose(coords)
+        positions = self.get_positions(coords)
 
         if self.potential.N_dim == 1:
             force = self.potential.external_force(positions, params)
@@ -146,7 +177,11 @@ class System:
         if self.potential.N_dim >= 3 and (axes is None or len(axes) > 3):
             if resolution > 100:
                 print('using a lower resolution for searching a space in >2 dimensions')
-                resolution = 100
+                if self.potential.N_dim == 3:
+                    resolution = 100
+                if self.potential.N_dim >= 4:
+                    resolution = 20
+                print('new resolution is {}'.format(resolution))
 
         NT = Nsample
         state = np.zeros((max(100, int(2*NT)), self.potential.N_dim, 2))
@@ -198,7 +233,7 @@ class System:
         state = state[0:Nsample, :, :]
 
         if self.has_velocity:
-            state[:, :, 1] = np.random.normal(0, np.sqrt(beta/M), (Nsample, self.potential.N_dim))
+            state[:, :, 1] = np.random.normal(0, np.sqrt(1/(M*beta)), (Nsample, self.potential.N_dim))
         else:
             return state[:, :, 0]
 
