@@ -37,7 +37,21 @@ Module Contents
       :rtype: instance of the System class
 
 
-   .. method:: get_energy(self, coords, t)
+   .. method:: get_kinetic_energy(self, coords, mass)
+
+
+      gives the kinetic energy of a set of coordinates where [..., 1] are the velocities
+
+      :param coords: array of N_c sets of coordinates in N_d dimensions
+      :type coords: ndarray of dimension [..., 2], conventionally [N_c, N_d, 2]
+      :param mass: the masses of the particles
+      :type mass: float or ndarray of length N_c
+
+      :returns: * **T** (*ndarray*) -- The  N_c kinetic energies of the set of coordinates
+                * *if has_velocity is False, returns a 0*
+
+
+   .. method:: get_energy(self, coords, t, mass=1)
 
 
       Calculate the energy of a particle at location coords at time t
@@ -46,9 +60,17 @@ Module Contents
       :type coords: ndarray of dimensions [N_c, N_d, 2]
       :param t: time at which you want to evaluate the energy
       :type t: float or int
+      :param mass: the mass of the particles, generally it makes sense to scale to the mass is 1
+      :type mass: float
 
       :returns: **U+T**
       :rtype: ndarray of dimension [N_c,]
+
+
+   .. method:: get_positions(self, coords)
+
+
+      simple helper function that returns only the positions from a set of coordinates
 
 
    .. method:: get_potential(self, coords, t)
@@ -58,7 +80,7 @@ Module Contents
 
       :param coords: array of N_c sets of coordinates in N_d dimensions
       :type coords: ndarray of dimensions [N_c, N_d, 2]
-      :param t: time at which you want to evaluate the energy
+      :param t: time at which you want to evaluate the potential energy
       :type t: float or int
 
       :returns: **U**
@@ -80,7 +102,7 @@ Module Contents
       :rtype: ndarray of dimension [N_c, N_d]
 
 
-   .. method:: eq_state(self, Nsample, t=None, resolution=1000, damped=None, manual_domain=None, axis1=1, axis2=2, slice_vals=None)
+   .. method:: eq_state(self, Nsample, t=None, resolution=500, beta=1, M=1, manual_domain=None, axes=None, slice_vals=None)
 
 
       function still in development, docstring will come later.
@@ -105,8 +127,10 @@ Module Contents
       :type manual_domain: None or ndarray of dimension (2, N_d)
       :param contours: sets number of contours to plot, or list of manually set contours
       :type contours: int or list
-      :param axis1, axis2: which coordinate we will consider to be 'x' and 'y' for the plot
-      :type axis1, axis2: int
+      :param axis1: which coordinate we will consider to be 'x' and 'y' for the plot
+      :type axis1: int
+      :param axis2: which coordinate we will consider to be 'x' and 'y' for the plot
+      :type axis2: int
       :param slice_values: these are the values we keep the other coordinates fixed at while sweeping through axis1 and axis2
       :type slice_values: ndarray of dimension [N_d,]
 
@@ -133,8 +157,10 @@ Module Contents
       :type manual_domain: None or ndarray of dimension (2, N_d)
       :param n_contours: sets number of contours to plot, or list of manually set contours
       :type n_contours: int or list
-      :param axis1, axis2: which coordinate we will consider to be 'x' and 'y' for the plot
-      :type axis1, axis2: int
+      :param axis1: which coordinate we will consider to be 'x' and 'y' for the plot
+      :type axis1: int
+      :param axis2: which coordinate we will consider to be 'x' and 'y' for the plot
+      :type axis2: int
       :param slice_values: these are the values we keep the other coordinates fixed at while sweeping through axis1 and axis2
       :type slice_values: ndarray of dimension [N_d,]
 
@@ -142,59 +168,30 @@ Module Contents
       :rtype: animation.FuncAnimate object
 
 
-   .. method:: get_domain(self, axis1, axis2, domain=None)
+   .. method:: lattice(self, t, resolution, axes=None, slice_values=None, manual_domain=None)
 
 
-      a helper function used only internally by other methods
-      it is for deciding what the relevant domain is
-      for visualization purposes.
-
-      :param axis1, axis2: the coordinates you want to get the domain for, i.e. axis1=2 means
-                           we are plotting the 'y' coordiante on the first axis
-      :type axis1, axis2: int
-      :param domain: if None, we pull the domain from the potential.domain
-                     if ndarray, a manual domain of the form [ (xmin,ymin,...), (xmax, ymax,...) ]
-      :type domain: None, or array of dimension [2, N_d]
-
-      :returns: * *if a 1D potential*
-                * **x_min, x_max, [], []** (*float*) -- x_min, x_max is our relevant domain boundaries
-                  y_min ,y_max are empty placeholder lists
-                * *if a 2D potential*
-                * **x_min, x_max, y_min, y_max** (*floats*) -- relevant domain boundaries for axis1 and axis2, respectively
-
-
-   .. method:: lattice(self, t, resolution, x_min, x_max, y_min, y_max, axis1=1, axis2=2, slice_values=None)
-
-
-      Helper function used internally by the visualization code. Creates a
-      1D or 2D lattice of coordiantes and calculates the potential at those coordinates
+      Helper function used internally by other pieces of code. Creates a
+      lattice of coordiantes and calculates the potential at those coordinates
+      at the given time
 
       :param t: time of interest for the potential energy
       :type t: float
       :param resolution: how many points we want to sample along each axis
       :type resolution: int
-      :param x_min, x_max, y_min, y_max: min/max values of the horizontal and vertical axes, respectively
-      :type x_min, x_max, y_min, y_max: float
-      :param axis1, axis2: which coordinate we will consider to be 'x' and 'y' for the plot
-      :type axis1, axis2: int
-      :param slice_values: there are the values we keep the other coordinates fixed at while sweeping through axis1 and axis2
-      :type slice_values: ndarray of dimension [N_d,]
+      :param axes: which coordinates we want to sweep through for the potential
+                   if None, will do all coordiantes
+      :type axes: list of dimension <N_dim or None
 
-      :returns: * *if 1D* --
+          slice_values: ndarray of dimension [N_d,] or None
+              these are the values we keep the other coordinates fixed at while sweeping through the selected axes
+              if None, sets all non-swept coordiantes to 0
 
-                  U: ndarray of dimension [resolution,]
-                      the potential at our test points, X
+          manual_domain: ndarray of dimension [2, N_d]
+              lists a manual domain if you want to sweep a different domain than the potentials default values
 
-                  X: ndarray of dimensiion [resolution]
-                      array of our test points
-                * *if 2D* --
-
-                  U: ndarray of dimension [resolution, resolution]
-                      the potential at our test points: X,Y
-
-                  X,Y: np arrays of dimension [resolution, resolution]
-                      X/Y gives the axis1/axis2 coordinates at each lattice point
-                      they are the results of an np.meshgrid operation
+      :returns: * **U** (*ndarray of dimension [resolution, resolution, ...]*) -- the potential at our test points, X_mesh has as many dimensions as len(axes) or N_dim if axes is None
+                * **X** (*ndarray of dimension [len(axes) or N_dim, shape(U)]*) -- array of our test points
 
 
 

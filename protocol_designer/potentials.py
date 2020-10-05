@@ -417,11 +417,18 @@ blw = Potential(
 # (9,10),(11,12),(13,14),(15,16):           (x,y) coordiantes of the L0,L1,R0,R1 wells       (absolute)
 
 # first we define some helper functions:
+
 def exp_well(x, y, Depth, x_loc, y_loc, x0, y0):
+    '''
+    helper function used in other potentials
+    '''
     return -Depth * np.exp(-(x_loc * (x - x0) ** 2 + y_loc * (y - y0) ** 2))
 
 
 def exp_well_derivs(x, y, Depth, x_loc, y_loc, x0, y0):
+    '''
+    helper function used in other potentials
+    '''
     dx = -2 * x_loc * (x - x0) * exp_well(x, y, Depth, x_loc, y_loc, x0, y0)
     dy = -2 * y_loc * (y - y0) * exp_well(x, y, Depth, x_loc, y_loc, x0, y0)
     return (dx, dy)
@@ -582,6 +589,9 @@ asym_1DW = Potential(asym_1D_well, asym_1D_well_force, 4, 1, default_params=asym
 
 
 def exp_well_3D(x, y, z, depth, localization, x0, y0, z0):
+    '''
+    helper function used in other potentials
+    '''
     U = - depth * np.exp(-localization*((x-x0)**2 + (y-y0)**2 + (z-z0)**2))
     fx = 2 * localization * depth * (x-x0) * U
     fy = 2 * localization * depth * (y-y0) * U
@@ -590,6 +600,9 @@ def exp_well_3D(x, y, z, depth, localization, x0, y0, z0):
 
 
 def stability_3D(x, y, z, s=.2):
+    '''
+    helper function used in other potentials
+    '''
     U = s*(x**4 + y**4 + z**4)
     fx = - 4*s*x**3
     fy = - 4*s*x**3
@@ -598,6 +611,22 @@ def stability_3D(x, y, z, s=.2):
 
 
 def symmetric_exp_wells_3D_pot(x, y, z, params):
+    """
+    3D 8-well potential. Used to implement a fredkin gate
+
+    Parameters
+    ----------
+    x,y,z : ndarrays of dimension [N,]
+        the x,y,z coordinates for N positions
+    params: list/tuple (1, 2, 3)
+        1, 2, 3:     1 is well depths
+                     2 is well separation
+                     3 is well localization
+
+    Returns
+    -------
+    the value of the potential at locations x,y,z with the given params
+    """
     D, L, loc = params
     well_positions = [(-L, -L, -L),
                       (-L, -L, L),
@@ -621,6 +650,9 @@ def symmetric_exp_wells_3D_pot(x, y, z, params):
 
 
 def symmetric_exp_wells_3D_force(x, y, z, params):
+    '''
+    see docs for symmetric_exp_wells_3D_pot
+    '''
     D, L, loc = params
     well_positions = [(-L, -L, -L),
                       (-L, -L, L),
@@ -675,6 +707,9 @@ def fredkin_flip_pot(x, y, z, params):
 
 
 def fredkin_flip_force(x, y, z, params):
+    '''
+    see docs for fredkin_flip_pot
+    '''
     a, b, s, k = params
     r2 = np.sqrt(2)
     yp = (y-z)/r2

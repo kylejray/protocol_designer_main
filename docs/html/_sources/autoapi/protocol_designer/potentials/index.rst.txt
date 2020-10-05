@@ -82,8 +82,10 @@ Module Contents
 
       makes a trivial (all parameters held fixed) protocol that will work with this potential
 
-      :param t_i,t_f: the initial and final times of the protocol
-      :type t_i,t_f: floats
+      :param t_i: the initial and final times of the protocol
+      :type t_i: floats
+      :param t_f: the initial and final times of the protocol
+      :type t_f: floats
 
       :returns: **Protocol** -- this will be a simple one step protocol, where all parameters are held
                 fixed at their default values, potential.default_params.
@@ -118,6 +120,46 @@ Module Contents
 
 
 .. data:: odv
+   
+
+   
+
+.. function:: e_well_3D(x, y, z, params)
+
+   A simple 1D potential, for testing one dimensional systems
+   its just an absolute value.
+
+   :param x:
+   :type x: the coordinates
+   :param y:
+   :type y: the coordinates
+   :param z:
+   :type z: the coordinates
+   :param params: 1: the slope
+                  2: zero point
+   :type params: (1,2)
+
+   :returns:
+   :rtype: the value of the potential at location x with the given params
+
+
+.. function:: e_well_3D_force(x, y, z, params)
+
+   See exp_well_3D function, it has the same input format.
+
+
+.. data:: ew_3D
+   
+
+   
+
+.. function:: five_d_test(x1, x2, x3, x4, x5, params)
+
+
+.. function:: five_d_test_force(x1, x2, x3, x4, x5, params)
+
+
+.. data:: fdt
    
 
    
@@ -161,14 +203,30 @@ Module Contents
    :type y: ndarray of dimension [N,]
    :param params:
    :type params: list/tuple (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-   :param 1,2,3,4:
-   :type 1,2,3,4: barrier b/w R0:R1, L0:L1, L1:R1, L0:R0            (0,1)
-   :param 5,6,7,8:
-   :type 5,6,7,8: lifts/lowers the L0,L1,R0,R1 wells                (-1,1)
-   :param 9,10:
-   :type 9,10: x coord for L,R wells                             (absolute)
-   :param 11,12:
-   :type 11,12: y coord for 0,1 wells                             (absolute)
+   :param 1:
+   :type 1: barrier b/w R0:R1, L0:L1, L1:R1, L0:R0            (0,1)
+   :param 2:
+   :type 2: barrier b/w R0:R1, L0:L1, L1:R1, L0:R0            (0,1)
+   :param 3:
+   :type 3: barrier b/w R0:R1, L0:L1, L1:R1, L0:R0            (0,1)
+   :param 4:
+   :type 4: barrier b/w R0:R1, L0:L1, L1:R1, L0:R0            (0,1)
+   :param 5:
+   :type 5: lifts/lowers the L0,L1,R0,R1 wells                (-1,1)
+   :param 6:
+   :type 6: lifts/lowers the L0,L1,R0,R1 wells                (-1,1)
+   :param 7:
+   :type 7: lifts/lowers the L0,L1,R0,R1 wells                (-1,1)
+   :param 8:
+   :type 8: lifts/lowers the L0,L1,R0,R1 wells                (-1,1)
+   :param 9:
+   :type 9: x coord for L,R wells                             (absolute)
+   :param 10:
+   :type 10: x coord for L,R wells                             (absolute)
+   :param 11:
+   :type 11: y coord for 0,1 wells                             (absolute)
+   :param 12:
+   :type 12: y coord for 0,1 wells                             (absolute)
    :param scaled_parameters: if True will scale the parameters to be functionally meaningful
                              i.e. setting parameter 1 to 0 means that the barrier is dropped to its lowest value
                              and setting it to 1 means that it is at its highers value
@@ -191,8 +249,12 @@ Module Contents
 
 .. function:: exp_well(x, y, Depth, x_loc, y_loc, x0, y0)
 
+   helper function used in other potentials
+
 
 .. function:: exp_well_derivs(x, y, Depth, x_loc, y_loc, x0, y0)
+
+   helper function used in other potentials
 
 
 .. function:: exp_potential(x, y, params, scaled_params=True)
@@ -205,12 +267,38 @@ Module Contents
    :type y: ndarray of dimension [N,]
    :param params:
    :type params: list/tuple (1, 2, 3, ..., 16)
-   :param 1,2,3,4:
-   :type 1,2,3,4: barrier heights b/w R0:R1, L0:L1, L1:R1, L0:R0                         (0,1)
-   :param 5,6,7,8:
-   :type 5,6,7,8: well depths L0,L1,R0,R1 wells                                          (-1,1)
-   :param (9,10),(11,12),(13,14),(15,16):
-   :type (9,10),(11,12),(13,14),(15,16): (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param 1:
+   :type 1: barrier heights b/w R0:R1, L0:L1, L1:R1, L0:R0                         (0,1)
+   :param 2:
+   :type 2: barrier heights b/w R0:R1, L0:L1, L1:R1, L0:R0                         (0,1)
+   :param 3:
+   :type 3: barrier heights b/w R0:R1, L0:L1, L1:R1, L0:R0                         (0,1)
+   :param 4:
+   :type 4: barrier heights b/w R0:R1, L0:L1, L1:R1, L0:R0                         (0,1)
+   :param 5:
+   :type 5: well depths L0,L1,R0,R1 wells                                          (-1,1)
+   :param 6:
+   :type 6: well depths L0,L1,R0,R1 wells                                          (-1,1)
+   :param 7:
+   :type 7: well depths L0,L1,R0,R1 wells                                          (-1,1)
+   :param 8:
+   :type 8: well depths L0,L1,R0,R1 wells                                          (-1,1)
+   :param (9:
+   :type (9: (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param 10):
+   :type 10): (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param (11:
+   :type (11: (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param 12):
+   :type 12): (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param (13:
+   :type (13: (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param 14):
+   :type 14): (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param (15:
+   :type (15: (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
+   :param 16):
+   :type 16): (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
    :param scaled_parameters: if True will scale the parameters to be functionally meaningful
                              i.e. setting parameter 1 to 0 means that the barrier is dropped to its lowest value
                              and setting it to 1 means that it is at its highers value
@@ -232,6 +320,139 @@ Module Contents
    
 
 .. data:: exp_wells_2D
+   
+
+   
+
+.. function:: even_parity_1D_well(x, params)
+
+   1D double well potential using just even parity terms x^2 and x^4:
+       a*x^4 + (b/2)*x^2
+
+   :param x: the x coordinates for N positions
+   :type x: ndarray of dimension [N,]
+   :param params: 1, 2 : coefficients of the x^4 and x^2 terms, respectively
+   :type params: list/tuple (1, 2)
+
+   :returns:
+   :rtype: the value of the potential at locations x,y with the given params
+
+
+.. function:: even_parity_1D_well_force(x, params)
+
+   see even_parity_1D_well function documentation
+
+
+.. data:: even_1DW_defaults
+   
+
+   
+
+.. data:: even_1DW
+   
+
+   
+
+.. function:: asym_1D_well(x, params)
+
+   1D asymetric double well potential using just even parity terms x^2 and x^4. coefficients for x<0 and x>0 can vary.
+
+   :param x: the x coordinates for N positions
+   :type x: ndarray of dimension [N,]
+   :param params: 1, 2, 3, 4 : 1,2 are coefficients of the x^4 terms and  3,4  of the x^2 terms, respectively
+   :type params: list/tuple (1, 2, 3, 4)
+
+   :returns:
+   :rtype: the value of the potential at locations x,y with the given params
+
+
+.. function:: asym_1D_well_force(x, params)
+
+   see even_parity_1D_well function documentation
+
+
+.. data:: asym_1DW_defaults
+   
+
+   
+
+.. data:: asym_1DW
+   
+
+   
+
+.. function:: exp_well_3D(x, y, z, depth, localization, x0, y0, z0)
+
+   helper function used in other potentials
+
+
+.. function:: stability_3D(x, y, z, s=0.2)
+
+   helper function used in other potentials
+
+
+.. function:: symmetric_exp_wells_3D_pot(x, y, z, params)
+
+   3D 8-well potential. Used to implement a fredkin gate
+
+   :param x: the x,y,z coordinates for N positions
+   :type x: ndarrays of dimension [N,]
+   :param y: the x,y,z coordinates for N positions
+   :type y: ndarrays of dimension [N,]
+   :param z: the x,y,z coordinates for N positions
+   :type z: ndarrays of dimension [N,]
+   :param params:
+                  1, 2, 3:     1 is well depths
+                               2 is well separation
+                               3 is well localization
+   :type params: list/tuple (1, 2, 3)
+
+   :returns:
+   :rtype: the value of the potential at locations x,y,z with the given params
+
+
+.. function:: symmetric_exp_wells_3D_force(x, y, z, params)
+
+   see docs for symmetric_exp_wells_3D_pot
+
+
+.. data:: symm_3D_wells
+   
+
+   
+
+.. function:: fredkin_flip_pot(x, y, z, params)
+
+   3D 8-well potential. Used to implement a fredkin gate
+
+   :param x: the x coordinates for N positions
+   :type x: ndarray of dimension [N,]
+   :param params:
+                  1, 2, 3, 4 : 1,2 are the coefficients of the 4th and 2nd order terms in the storage potential
+                               3 turns off the y-z subspace storage potential fir x>0. Should genrally be 0(storage on) or 1(storage off)
+                               4 is the k-value of the computational potential that implements the swap (like spring contant k)
+   :type params: list/tuple (1, 2, 3, 4)
+
+   :returns:
+   :rtype: the value of the potential at locations x,y with the given params
+
+
+.. function:: fredkin_flip_force(x, y, z, params)
+
+   see docs for fredkin_flip_pot
+
+
+.. data:: fp_def_param
+   
+
+   
+
+.. data:: fp_domain
+   :annotation: = [None, [3, 3, 3]]
+
+   
+
+.. data:: fredkin_pot
    
 
    

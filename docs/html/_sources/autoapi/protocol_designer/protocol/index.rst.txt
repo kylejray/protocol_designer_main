@@ -39,6 +39,12 @@ Module Contents
 
       :type: int
 
+   .. attribute:: interpolation
+
+      interpolation method used to vary the parameter between t_i and t_f
+
+      :type: str, 'linear', 'step', or 'logistic'
+
    .. method:: get_params(self, t)
 
 
@@ -86,7 +92,7 @@ Module Contents
       no inputs no outputs
 
 
-   .. method:: change_param(self, which_params, new_params)
+   .. method:: change_params(self, which_params, new_params)
 
 
       Manually changes some or all of the parameter values in the protocol.
@@ -122,10 +128,16 @@ Module Contents
       basic linear interpolation function, used internally by other methods
 
 
-   .. method:: get_logistic(self, init, final, t, ramp=5, offset=0)
+   .. method:: get_logistic(self, init, final, t)
 
 
       basic logistic interpolation function, used internally by other methods
+
+
+   .. method:: get_step(self, init, final, t)
+
+
+      basic step function interpolation function, used internally by other methods
 
 
 

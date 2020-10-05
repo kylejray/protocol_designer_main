@@ -28,7 +28,7 @@ Module Contents
    
 
 .. data:: extensions
-   :annotation: = ['sphinx.ext.napoleon', 'autoapi.extension']
+   :annotation: = ['sphinx.ext.napoleon', 'autoapi.extension', 'sphinx_rtd_theme']
 
    
 
@@ -48,7 +48,7 @@ Module Contents
    
 
 .. data:: html_theme
-   :annotation: = alabaster
+   :annotation: = sphinx_rtd_theme
 
    
 
