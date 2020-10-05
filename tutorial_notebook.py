@@ -20,6 +20,7 @@ from protocol_designer.system import System
 import numpy as np 
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 plt.rcParams["animation.html"] = "jshtml"
 from IPython.display import HTML
 
@@ -32,7 +33,29 @@ coords_2D=np.random.random_sample((N,2,2))
 coords_1D=np.random.random_sample((N,1,2))
 coords_5D=np.random.random_sample((10,5,2))
 #these will be used later
+
+# +
+#this cell is just for testing some random stuff and troubleshooting
+import protocol_designer as prd
+eq_potential = prd.potentials.symm_3D_wells
+
+fredkin_pot = prd.potentials.fredkin_pot
+triv_p = fredkin_pot.trivial_protocol()
+triv_p.time_stretch(np.pi)
+triv_p.time_shift(1)
+fredkin_system = System(triv_p, fredkin_pot)
+fredkin_system.equilibrating_potential = eq_potential
+
 # -
+
+fredkin_system.show_potential(0)
+
+from protocol_designer.potentials import symm_3D_wells
+s2d_p = Protocol((0,1), ((10,10),(1,1),(8,8)))
+trivial_sys = System(s2d_p, symm_3D_wells)
+
+ani = trivial_sys.animate_protocol(mesh = 30, surface=True, slice_values=(1,1,1))
+HTML(ani.to_jshtml(fps=5))
 
 # # Protocols
 
@@ -488,7 +511,7 @@ NP=7
 szilard_prot_1 = sequential_protocol(NS, NP, which, non_triv_param, initial_params=duffing_2D.default_params )
 
 szil_sys=System(szilard_prot_1, duffing_2D)
-ani=szil_sys.animate_protocol(frames=50, surface=False)
+ani=szil_sys.animate_protocol(frames=50, n_contours=80, surface=False)
 HTML(ani.to_jshtml(fps=5))
 
 # note that the function automatically makes NS substages of equal length between t=0 and t=1
@@ -541,6 +564,3 @@ HTML(sysanim.to_jshtml(fps=8))
 # though this tutorial has gotten prety long, so maybe we'll stop here.
 # a separate notebook will detail how we use the system class in conjunction
 # with the infoenginessims package.
-# -
-
-
