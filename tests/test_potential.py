@@ -1,6 +1,9 @@
 import sys
-sys.path.append("..")
-from protocol_designer.potentials import Potential, odv, duffing_2D
+import os
+source_path = os.path.expanduser('~/source/')
+sys.path.append(source_path)
+
+from system_under_study.protocol_designer.potentials import Potential, odv, duffing_2D
 import numpy as np
 
 
@@ -10,7 +13,7 @@ class TestOneDim:
     '''
 
     def set_inputs(self):
-        ''' this function sets up inputs, it is called inside ofhter test functions '''
+        ''' this function sets up inputs, it is called inside other test functions '''
         triv_prot = odv.trivial_protocol()
         self.params = triv_prot.params[0]
         self.N = np.random.randint(10, size=2) + 1

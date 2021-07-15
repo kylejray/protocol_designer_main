@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
 from .protocol import Protocol
-from .potentials import Potential
+from .potential import Potential
 import copy
 
 # expected form for data for coordinates is (N,D,2)
@@ -32,6 +32,7 @@ class System:
         self.protocol = protocol
         self.potential = potential
         self.has_velocity = True
+        self.mass = 1
         msg = "the number of protocol parameters must match the potential"
         assert (
             len(self.protocol.get_params(self.protocol.t_i)) == self.potential.N_params
@@ -46,9 +47,9 @@ class System:
         copy: instance of the System class
 
         """
-        return copy.deepcopy(System(self.protocol, self.potential))
+        return copy.deepcopy(self)
     
-    def get_kinetic_energy(self, coords, mass):
+    def get_kinetic_energy(self, coords):
         '''
         gives the kinetic energy of a set of coordinates where [..., 1] are the velocities
         
@@ -69,13 +70,12 @@ class System:
         '''
         if self.has_velocity:
             velocity = coords[..., 1]
-            velocity_squared = np.sum(np.square(velocity), axis=np.size(np.shape(velocity))-1)
-            T = np.multiply(.5 * mass, velocity_squared)
+            T = np.sum(.5*self.mass*np.square(velocity), axis=-1)
             return T
         else:
             return 0
 
-    def get_energy(self, coords, t, mass=1):
+    def get_energy(self, coords, t):
         """
         Calculate the energy of a particle at location coords at time t
 
@@ -98,7 +98,7 @@ class System:
         """
         U = self.get_potential(coords, t)
         if self.has_velocity:
-            T = self.get_kinetic_energy(coords, mass)
+            T = self.get_kinetic_energy(coords)
             return T+U
         else:
             return U
@@ -167,7 +167,7 @@ class System:
 
         return np.transpose(force)
 
-    def eq_state(self, Nsample,  t=None, resolution=500, beta=1, M=1, manual_domain=None, axes=None, slice_vals=None):
+    def eq_state(self, Nsample,  t=None, resolution=500, beta=1, manual_domain=None, axes=None, slice_vals=None):
         '''
         function still in development, docstring will come later.
         generates Nsample coordinates from an equilibrium distribution at
@@ -191,7 +191,7 @@ class System:
                 state = state[:, :, 0]
             E_curr = self.get_energy(state, t)
             Delta_U = E_curr-U0
-            return np.exp(-Delta_U)
+            return np.exp(-beta * Delta_U)
 
         if t is None:
             t = self.protocol.t_i
@@ -233,7 +233,7 @@ class System:
         state = state[0:Nsample, :, :]
 
         if self.has_velocity:
-            state[:, :, 1] = np.random.normal(0, np.sqrt(1/(M*beta)), (Nsample, self.potential.N_dim))
+            state[:, :, 1] = np.random.normal(0, np.sqrt(1/(self.mass*beta)), (Nsample, self.potential.N_dim))
         else:
             return state[:, :, 0]
 
@@ -249,6 +249,7 @@ class System:
         axis1=1,
         axis2=2,
         slice_values=None,
+        **plot_kwargs
     ):
         """
         Shows a 1 or 2D plot of the potential at a time t
@@ -281,7 +282,7 @@ class System:
 
         Returns
         -------
-        no returns, just plots a figure
+        returns fig, ax
         """
         if self.potential.N_dim >= 2 and axis2 is not None:
             U, X_mesh = self.lattice(t, resolution, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain)
@@ -292,8 +293,8 @@ class System:
             y_min, y_max = np.min(Y), np.max(Y)
             if surface is False:
                 fig, ax = plt.subplots()
-                CS = ax.contour(X, Y, U, contours)
-                # ax.clabel(CS, inline=1, fontsize=10)
+                CS = ax.contourf(X, Y, U, contours, **plot_kwargs)
+                plt.colorbar(CS)
                 ax.set_xlabel('x{}'.format(axis1))
                 ax.set_ylabel('x{}'.format(axis2))
                 ax.set_title("t={:.2f}".format(t))
@@ -303,7 +304,7 @@ class System:
             if surface is True:
                 fig = plt.figure()
                 ax = fig.add_subplot(111, projection="3d")
-                ax.plot_wireframe(X, Y, U)
+                ax.plot_wireframe(X, Y, U, **plot_kwargs)
                 ax.set_xlabel('x{}'.format(axis1))
                 ax.set_ylabel('x{}'.format(axis2))
                 ax.set_title("t={:.2f}".format(t))
@@ -317,9 +318,74 @@ class System:
             x_min, x_max = np.min(X), np.max(X)
             y_min, y_max = np.min(Y), np.max(Y)
             fig, ax = plt.subplots()
-            ax.plot(X, Y)
+            ax.plot(X, Y, **plot_kwargs)
             ax.set_xlabel("x")
             ax.set_xlabel("U")
+            ax.set_title("t={:.2f}".format(t))
+
+        return fig, ax
+
+    def show_force(
+        self,
+        t,
+        resolution=20,
+        manual_domain=None,
+        axis1=1,
+        axis2=2,
+        slice_values=None,
+        **plot_kwargs
+    ):
+        """
+        Shows a 1D or 2D plot of the force at a time t
+
+        Parameters
+        ----------
+
+        t: float
+            the time you want to plot the potential at
+
+        resolution: int
+            the number of sample points to plot along each axis
+
+        manual_domain: None or ndarray of dimension (2, N_d)
+            if None, we pull the domain from the default potential.domain
+            if ndarray, a manual domain of the form [ (xmin,ymin,...), (xmax, ymax,...) ]
+
+        axis1, axis2: int
+            which coordinate we will consider to be 'x' and 'y' for the plot
+
+        slice_values: ndarray of dimension [N_d,]
+            these are the values we keep the other coordinates fixed at while sweeping through axis1 and axis2
+
+        Returns
+        -------
+        returns fig, ax
+        """
+        if self.potential.N_dim >= 2 and axis2 is not None:
+            F, X_mesh = self.lattice(t, resolution, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain, return_force=True)
+            X = X_mesh[0]
+            Y = X_mesh[1]
+
+            x_min, x_max = np.min(X), np.max(X)
+            y_min, y_max = np.min(Y), np.max(Y)
+
+            fig, ax = plt.subplots()
+            C = np.hypot(*F)
+            ax.quiver(X, Y, *F, C, **plot_kwargs)
+            ax.set_xlabel('x{}'.format(axis1))
+            ax.set_ylabel('x{}'.format(axis2))
+            ax.set_title("t={:.2f}".format(t))
+
+        if self.potential.N_dim == 1 or axis2 is None:
+            F, X_mesh = self.lattice(t, resolution, axes=[axis1], slice_values=slice_values, manual_domain=manual_domain, return_force=True)
+            X = X_mesh[0]
+            Y = F[0]
+            x_min, x_max = np.min(X), np.max(X)
+            y_min, y_max = np.min(Y), np.max(Y)
+            fig, ax = plt.subplots()
+            ax.plot(X, Y, **plot_kwargs)
+            ax.set_xlabel("x")
+            ax.set_xlabel("F")
             ax.set_title("t={:.2f}".format(t))
 
         return fig, ax
@@ -336,6 +402,7 @@ class System:
         axis1=1,
         axis2=2,
         slice_values=None,
+        show_force=False
     ):
         """
         Shows an animation of how the potential changes over the duration of your protocol, can be a little slow
@@ -384,7 +451,7 @@ class System:
             U_array[:, 0], X = self.lattice(t_i, mesh, axes=[axis1], slice_values=slice_values, manual_domain=manual_domain)
 
             for idx, item in enumerate(t):
-                U_array[:, idx] = self.lattice(item, mesh, axes=[axis1], slice_values=slice_values, manual_domain=manual_domain)[0]
+                U_array[:, idx], _ = self.lattice(item, mesh, axes=[axis1], slice_values=slice_values, manual_domain=manual_domain, return_force=show_force)
 
             fig, ax = plt.subplots()
             (line,) = ax.plot([], [])
@@ -426,17 +493,19 @@ class System:
         if self.potential.N_dim >= 2:
 
             U_array = np.zeros((mesh, mesh, frames))
+            if show_force:
+                U_array = np.zeros((2, mesh, mesh, frames))
             # T_array=np.zeros((mesh,mesh,frames))
             #
             # for idx,item in enumerate(t):
             #    T_array[:,:,idx]=item
-            U_array[:, :, 0], X_mesh = self.lattice(t_i, mesh, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain)
+            U_array[...,0], X_mesh = self.lattice(t_i, mesh, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain, return_force=show_force)
             X = X_mesh[0]
             Y = X_mesh[1]
             x_min, x_max = np.min(X), np.max(X)
             y_min, y_max = np.min(Y), np.max(Y)
             for idx, item in enumerate(t):
-                U_array[:, :, idx] = self.lattice(item, mesh, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain)[0]
+                U_array[..., idx], _ = self.lattice(item, mesh, axes=(axis1, axis2), slice_values=slice_values, manual_domain=manual_domain, return_force=show_force)
 
             if surface:
 
@@ -514,8 +583,12 @@ class System:
                         fontsize=12,
                         color="k",
                     )
-                    U_current = U_array[:, :, iter]
-                    cont = plt.contour(X, Y, U_current, n_contours)
+                    U_current = U_array[..., iter]
+                    if show_force:
+                        C = U_current
+                        Q = plt.quiver()
+                    else:
+                        cont = plt.contour(X, Y, U_current, n_contours)
                     return cont
 
                 anim = animation.FuncAnimation(
@@ -529,7 +602,7 @@ class System:
 
                 return anim
 
-    def lattice(self, t, resolution, axes=None, slice_values=None, manual_domain=None):
+    def lattice(self, t, resolution, axes=None, slice_values=None, manual_domain=None, return_force=False):
 
         """
         Helper function used internally by other pieces of code. Creates a
@@ -573,9 +646,13 @@ class System:
             if manual_domain is not None:
                 lims = manual_domain
             x_vec = np.transpose(np.linspace(*lims, resolution))
-            U = self.potential.potential(x_vec, params)
-            return U, x_vec
-
+            if return_force:
+                F = self.potential.external_force(x_vec, params)
+                return F, x_vec
+            else:
+                U = self.potential.potential(x_vec, params)
+                return U, x_vec
+            
         else:
             if manual_domain is None:
                 lims = self.potential.domain
@@ -587,7 +664,7 @@ class System:
                 lims = lims[:, axes]
 
             else:
-                assert axes is not None, "when using a manual domain, must include the 'which_axes' keyword"
+                assert axes is not None, "when using a manual domain, must include the 'axes' keyword argument"
                 manual_domain = np.array(manual_domain)
                 axes = np.array(axes) - 1
                 lims = manual_domain[:, axes]
@@ -603,6 +680,11 @@ class System:
         for i, item in enumerate(axes):
             slice_list[item] = X_mesh[i]
 
-        U = self.potential.potential(*slice_list, params)
+        if return_force is False:
+            U = self.potential.potential(*slice_list, params)
+            return U, X_mesh
+        
+        if return_force is True:
+            F = self.potential.external_force(*slice_list, params)[axes]
+            return F, X_mesh
 
-        return (U, X_mesh)

@@ -1,8 +1,7 @@
-from protocol_designer.protocol import Protocol, Compound_Protocol, sequential_protocol
-from protocol_designer.potentials import Potential, duffing_2D, blw, exp_wells_2D
-from protocol_designer.system import System
+from ..protocol_designer import Protocol, Compound_Protocol, Potential, System 
+from ..protocol_designer.protocol import sequential_protocol
+from .potentials import duffing_2D, blw, exp_wells_2D
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 # MULTIPLY

@@ -1,6 +1,7 @@
-from protocol_designer.protocol import Protocol, Compound_Protocol, sequential_protocol
-from protocol_designer.potentials import Potential, even_1DW, exp_wells_2D, asym_1DW, fredkin_pot
-from protocol_designer.system import System
+from ..protocol_designer import Protocol, Compound_Protocol, Potential, System
+from ..protocol_designer.protocol import sequential_protocol
+
+from .potentials import even_1DW, exp_wells_2D, asym_1DW, fredkin_pot
 import numpy as np
 
 
@@ -67,6 +68,8 @@ ntp = (L0_x, L0_y, R0_x, R0_y)
 
 default_vals = (1, 1, 1, 1, 1, 0, 1, 0, -1, 0, -1, 1, 1, 0, 1, 1)
 
+
 exp_flip_prot = sequential_protocol(2, 16, which_p, ntp, initial_params=default_vals)
 
 exp_flip_sys = System(exp_flip_prot, exp_wells_2D)
+exp_flip_sys.potential.domain = np.array([[-5,-5],[5,5]])

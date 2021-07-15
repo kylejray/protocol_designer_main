@@ -1,8 +1,7 @@
-from protocol_designer.protocol import Protocol, Compound_Protocol, sequential_protocol
-from protocol_designer.potentials import Potential, duffing_2D, blw, exp_wells_2D
-from protocol_designer.system import System
+from ..protocol_designer import Protocol, Compound_Protocol, Potential, System
+from ..protocol_designer.protocol import sequential_protocol
+from .potentials import duffing_2D, blw, exp_wells_2D
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 # ALECS 12 STEP SZILARD, using linearly coupled 2D duffing:
@@ -28,7 +27,7 @@ d2d_szilard = System(d2d_szilard_prot, duffing_2D)
 ##########################################################
 ##########################################################
 
-# THE BLW version of szilard protocol, 6 steps currently:
+# THE BLW version of szilard protocol, 7 steps currently:
 
 ##########################################################
 ##########################################################
@@ -41,12 +40,12 @@ L0 = (0, 0, -1, -1, -1, 0, 0)
 # L1 is constant 0
 # R0 is constant 0
 R1 = (0, 0, -1, -1, -1, 0, 0)
+time = tuple(np.divide((0, 1, 2, 3, 4, 5, 6), 6))
 
 which_p = (1, 2, 3, 4, 5, 8)
 
 ntp = (R0R1, L0L1, L1R1, L0R0, L0, R1)
-t = np.linspace(0, 1000, 7)
-blw_szilard_prot = sequential_protocol(6, 12, which_p, ntp, initial_params=blw.default_params)
+blw_szilard_prot = sequential_protocol(6, 12, which_p, ntp, times=time, initial_params=blw.default_params)
 blw_szilard = System(blw_szilard_prot, blw)
 
 ##########################################################
@@ -57,17 +56,20 @@ blw_szilard = System(blw_szilard_prot, blw)
 ##########################################################
 ##########################################################
 
-L0L1 = (1, 0, 0, 1, 1, 1, 1)
-R0R1 = (1, 0, 0, 1, 1, 1, 1)
-L0R0 = (1, 1, 1, 1, 0, 0, 1)
-L1R1 = (1, 1, 1, 1, 0, 0, 1)
-L0 = (1, 1, 2, 2, 2, 1, 1)
+d = 1
+D = 1.5
+L0L1 = (1, 0, 0, 1, 1, 1, 1, 1)
+R0R1 = (1, 0, 0, 1, 1, 1, 1, 1)
+L0R0 = (1, 1, 1, 1, 0, 0, 0, 1)
+L1R1 = (1, 1, 1, 1, 0, 0, 0, 1)
+L0 =   (d, d, D, D, D, d, d, d)
 # L1 is constant 0
 # R0 is constant 0
-R1 = (1, 1, 2, 2, 2, 1, 1)
+R1 =   (d, d, D, D, D, d, d, d)
+time = tuple(np.divide((0, 1, 2, 4, 5, 6, 7, 8), 8))
 
 which_p = (1, 2, 3, 4, 5, 8)
 
 ntp = (L0L1, R0R1, L0R0, L1R1, L0, R1)
-ew2_szilard_prot = sequential_protocol(6, 16, which_p, ntp, initial_params=exp_wells_2D.default_params)
+ew2_szilard_prot = sequential_protocol(7, 16, which_p, ntp, times=time, initial_params=exp_wells_2D.default_params)
 ew2_szilard = System(ew2_szilard_prot, exp_wells_2D)

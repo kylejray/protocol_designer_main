@@ -24,18 +24,18 @@ class Protocol:
     N_params: int
         number of parameters in the protocol
 
-    interpolation: str, 'linear', 'step', or 'logistic'
+    interpolation: str, 'linear', 'step', or 'sigmoid'
         interpolation method used to vary the parameter between t_i and t_f
 
     """
 
-    def __init__(self, t, params):
+    def __init__(self, t, params, interpolation='linear'):
         self.params = np.asarray(params)
         self.protocols = None
         self.t_i = float(t[0])
         self.t_f = float(t[1])
         self.N_params = len(self.params[:, 0])
-        self.interpolation = 'linear'
+        self.interpolation = interpolation
 
     def get_params(self, t):
         """
@@ -57,6 +57,8 @@ class Protocol:
             interpolate = self.get_linear
         if self.interpolation == 'step':
             interpolate = self.get_step
+        if self.interpolation == 'sigmoid':
+            interpolate = self.get_sigmoid
 
         if t < self.t_i:
 
@@ -137,9 +139,9 @@ class Protocol:
         A copy of your current protocol
         """
 
-        return copy.deepcopy(Protocol((self.t_i, self.t_f), self.params))
+        return copy.deepcopy(self)
 
-    def show_params(self, which=None):
+    def show_params(self, which=None, resolution=50):
         """
         Shows plots of the chosen parameters over times, no returns
 
@@ -150,8 +152,8 @@ class Protocol:
             if all, shows all parameters no amtter what
             if list, shows only the parameters in the list. i.e. which=3 will only show parameter numbe 3
         """
-        N_t = 50
-        t = np.linspace(self.t_i, self.t_f, N_t)
+        N_t = resolution
+        t = np.linspace(self.t_i, 1.1*self.t_f, N_t)
 
         if which is "all" or which is None:
             indices = np.asarray(range(self.N_params))
@@ -183,11 +185,11 @@ class Protocol:
         )
         fig.subplots_adjust(hspace=0.5)
 
-        for i, item in enumerate(ax[:]):
+        for i, item in enumerate(ax):
             y_range = max(np.abs(np.max(p_array[:, i])), np.abs(np.min(p_array[:, i])))
             if y_range == 0:
                 y_range = 1
-            item.set_xlim(self.t_i, self.t_f)
+            item.set_xlim(self.t_i, 1.1*self.t_f)
             item.set_ylim(-1.5 * y_range, 1.5 * y_range)
             item.yaxis.tick_right()
             item.axhline(y=0, color="k", linestyle="--", alpha=0.5)
@@ -205,28 +207,28 @@ class Protocol:
 
             item.plot(t, p_array[:, i])
 
+        plt.show()
+
     def get_linear(self, init, final, t):
         """
         basic linear interpolation function, used internally by other methods
         """
         return init + (t - self.t_i) * (final - init) / (self.t_f - self.t_i)
 
-    def get_logistic(self, init, final, t):
+    def get_sigmoid(self, init, final, t):
         """
         basic logistic interpolation function, used internally by other methods
         """
-        ramp = 5
-        offset = 0
-
+        ramp = 16
         delta_y = final - init
-        t_scaled = t - (self.t_i + self.t_f) / 2
-        return init + delta_y / (1 + np.exp(-ramp * (t_scaled - offset)))
+        t_scaled = (t-self.t_i)/(self.t_f-self.t_i)-.5
+        return init + delta_y / (1 + np.exp( -ramp * t_scaled))
 
     def get_step(self, init, final, t):
         """
         basic step function interpolation function, used internally by other methods
         """
-        return init + (final-init) * np.heaviside(t-self.t_f, .5)
+        return init + (final-init) * np.heaviside(t-self.t_f, 1)
 
 
 

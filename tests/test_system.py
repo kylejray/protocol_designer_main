@@ -1,6 +1,9 @@
 import sys
-sys.path.append("..")
-from bit_flip_protocols import fredkin_3D, asym_bf_1D
+import os
+source_path = os.path.expanduser('~/source/')
+sys.path.append(source_path)
+
+from system_under_study.bit_flip_protocols import fredkin_3D, asym_bf_1D
 
 import numpy as np
 
@@ -49,3 +52,4 @@ class Test_3D_sim_calls:
         v_square = np.square(eq_state[..., 1])
         sample_sigma = np.std(v_square)/np.sqrt(N)
         assert np.isclose(np.mean(v_square), 1/(sample_mass*sample_beta), atol=3*sample_sigma)
+

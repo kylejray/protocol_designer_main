@@ -1,144 +1,6 @@
 import numpy as np
-from protocol_designer.protocol import Protocol
 
-
-class Potential:
-    """
-    This class is relatively simple in function. It bundles a force function and a potential energy function
-    together with methods to pull out the forces and energies when given coordinates and parameters. There are
-    also some other useful pieces of information stored, as well as utility methods
-
-    Attributes
-    ----------
-    scale: float
-        a multiplicative scale for the whole potential
-    pot: func
-        the potential energy function
-    force: func
-        the force function
-    N_params: int
-        the number of parameters that the force/potential energy need to give well defined answers
-    N_dim: int
-        number of dimensions the potential is over
-    default_params = None or list
-        if None, will set each default to 1
-        if list (length N_params), list becomes the default values for each parameter
-    domain: None or ndarray of dimension [2, N_dim]
-        stores the relevant working domain of the potential, where we expect interesting dynamics to happen
-        if None, uses -2,2 for all dimensions
-        if ndarray, take the array to be [ [x1_min, x2_min,....], [x1_max, x2_max,...]]
-    """
-
-    def __init__(
-        self,
-        potential,
-        external_force,
-        N_params,
-        N_dim,
-        default_params=None,
-        relevant_domain=None,
-    ):
-        """
-        potential: func
-            the potential energy function
-        external_force: func
-            the force function
-        N_params: int
-            the number of parameters that the force/potential energy need to give well defined answers
-        N_dim: int
-            number of dimensions the potential is over
-        default_params = None or list
-            if None, will set each default to 1
-            if list (length N_params), list becomes the default values for each parameter
-        relevant_domain: None or ndarray of dimension [2, N_dim]
-            stores the relevant working domain of the potential, where we expect interesting dynamics to happen
-            if None, uses -2,2 for all dimensions
-            if ndarray, take the array to be [ [x1_min, x2_min,....], [x1_max, x2_max,...]]
-        """
-
-        self.scale = 1
-        self.pot = potential
-        self.force = external_force
-        self.N_params = N_params
-        self.N_dim = N_dim
-        self.default_params = default_params
-        if relevant_domain is None:
-            self.domain = np.asarray(
-                (-2 * np.ones(self.N_dim), 2 * np.ones(self.N_dim))
-            )
-        else:
-            self.domain = np.asarray(relevant_domain)
-
-    def potential(self, *args):
-        """
-        Parameters
-        ----------
-        *args: the arguments to be fed into the potential function
-
-        Returns
-        -------
-        a scaled version of the potential function
-
-        """
-        return self.scale * self.pot(*args)
-
-    def external_force(self, *args):
-        """
-        Parameters
-        ----------
-        *args: the arguments to be fed into the force function
-
-        Returns
-        -------
-        a scaled version of the force function
-
-        """
-        return self.scale * self.force(*args)
-
-    def trivial_protocol(self, t_i=0, t_f=1):
-        """
-        makes a trivial (all parameters held fixed) protocol that will work with this potential
-
-        Parameters
-        ----------
-        t_i,t_f : floats
-            the initial and final times of the protocol
-
-        Returns
-        -------
-        Protocol: instance of Protocol class
-            this will be a simple one step protocol, where all parameters are held
-            fixed at their default values, potential.default_params.
-        """
-        t = (t_i, t_f)
-        if self.default_params is not None:
-            assert (
-                len(self.default_params) == self.N_params
-            ), "number of default parameters doesnt match potential"
-            params = []
-            for i in range(self.N_params):
-                params.append((self.default_params[i], self.default_params[i]))
-        if self.default_params is None:
-            params = np.ones((self.N_params, 2))
-
-        return Protocol(t, params)
-
-    def info(self, verbose=False):
-        """
-        prints basic info about the potential
-        """
-        if verbose:
-            print(self.pot.__doc__)
-        else:
-            print("This potential has {} parameters and {} dimensions".format(self.N_params, self.N_dim))
-            print("The current scale is {}".format(self.scale))
-            print('To see details about the specific potential set verbose=True')
-
-
-# A simple 1D potential, for testing one dimensional systems
-# its just an absolute value. parameters are:
-# 1: the slope
-# 2: zero point
+from ..protocol_designer import Potential
 
 
 def one_D_V(x, params):
@@ -433,6 +295,18 @@ def exp_well_derivs(x, y, Depth, x_loc, y_loc, x0, y0):
     dy = -2 * y_loc * (y - y0) * exp_well(x, y, Depth, x_loc, y_loc, x0, y0)
     return (dx, dy)
 
+def find_localization_scales(well_locations):
+    '''
+    helper function used in exp_wells potential
+    '''
+    x_loc = well_locations[::2]
+    y_loc = well_locations[1::2]
+    B = y_loc[1] - y_loc[0], y_loc[3] - y_loc[2], x_loc[2] - x_loc[0], x_loc[3] - x_loc[1]
+    B = 2 / np.array(B)**2
+    B_scale = 11*B
+    B_shift = B
+    return B_scale, B_shift
+
 
 def exp_potential(x, y, params, scaled_params=True):
     """
@@ -446,8 +320,8 @@ def exp_potential(x, y, params, scaled_params=True):
         the y coordinates for N positions
     params: list/tuple (1, 2, 3, ..., 16)
 
-    1,2,3,4: barrier heights b/w R0:R1, L0:L1, L1:R1, L0:R0                         (0,1)
-    5,6,7,8: well depths L0,L1,R0,R1 wells                                          (-1,1)
+    1,2,3,4: barrier heights b/w L0:L1, R0:R1, L0:R0, L1:R1                         (0,1)
+    5,6,7,8: well depths L0,L1,R0,R1 wells                                          (absolute)
     (9,10),(11,12),(13,14),(15,16): (x,y) coordiantes of the L0,L1,R0,R1 wells      (absolute)
 
     scaled_parameters: True or False
@@ -460,23 +334,24 @@ def exp_potential(x, y, params, scaled_params=True):
     the value of the potential at locations x,y with the given params
     """
     if scaled_params:
-        B_scale = 5.5
-        L_scale = 10
-        B_shift = -0.5
-        L_shift = 0
-        B = B_scale + B_shift
+        B_scale, B_shift = find_localization_scales(np.array(params)[8:])
+        assert len(B_scale) == 4, 'error in setting the localization scale'
+        assert len(B_shift) == 4, 'error in setting the localization scale'
+        no_scale = np.ones(12)
+        no_shift = np.zeros(12)
 
-        scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1, 1, 1, 1, 1,)
-        shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0, 0, 0, 0, 0,)
+        scale_vector = (*B_scale, *no_scale)
+        shift_vector = (*B_shift, *no_shift)
         params = np.multiply(scale_vector, params) + shift_vector
 
     (L0L1, R0R1, L0R0, L1R1, L0, L1, R0, R1, xL0, yL0, xL1, yL1, xR0, yR0, xR1, yR1,) = params
 
-    WL0 = exp_well(x, y, L0, 1 + L0R0, 1 + L0L1, xL0, yL0)
-    WL1 = exp_well(x, y, L1, 1 + L1R1, 1 + L0L1, xL1, yL1)
-    WR0 = exp_well(x, y, R0, 1 + L0R0, 1 + R0R1, xR0, yR0)
-    WR1 = exp_well(x, y, R1, 1 + L1R1, 1 + R0R1, xR1, yR1)
-    s = 0.3
+    WL0 = exp_well(x, y, L0, L0R0, L0L1, xL0, yL0)
+    WL1 = exp_well(x, y, L1, L1R1, L0L1, xL1, yL1)
+    WR0 = exp_well(x, y, R0, L0R0, R0R1, xR0, yR0)
+    WR1 = exp_well(x, y, R1, L1R1, R0R1, xR1, yR1)
+    
+    s = 0.03
     stability = s * (x ** 4 + y ** 4)
     return WL0 + WL1 + WR0 + WR1 + stability
 
@@ -487,23 +362,23 @@ def exp_potential_force(x, y, params, scaled_params=True):
     """
 
     if scaled_params:
-        B_scale = 5.5
-        L_scale = 10
-        B_shift = -0.5
-        L_shift = 0
-        B = B_scale + B_shift
+        B_scale, B_shift = find_localization_scales(np.array(params)[8:])
+        assert len(B_scale) == 4, 'error in setting the localization scale'
+        assert len(B_shift) == 4, 'error in setting the localization scale'
+        no_scale = np.ones(12)
+        no_shift = np.zeros(12)
 
-        scale_vector = (B_scale, B_scale, B_scale, B_scale, L_scale, L_scale, L_scale, L_scale, 1, 1, 1, 1, 1, 1, 1, 1,)
-        shift_vector = (B_shift, B_shift, B_shift, B_shift, L_shift, L_shift, L_shift, L_shift, 0, 0, 0, 0, 0, 0, 0, 0,)
+        scale_vector = (*B_scale, *no_scale)
+        shift_vector = (*B_shift, *no_shift)
         params = np.multiply(scale_vector, params) + shift_vector
 
     (L0L1, R0R1, L0R0, L1R1, L0, L1, R0, R1, xL0, yL0, xL1, yL1, xR0, yR0, xR1, yR1,) = params
 
-    WL0_dx, WL0_dy = exp_well_derivs(x, y, L0, 1 + L0R0, 1 + L0L1, xL0, yL0)
-    WL1_dx, WL1_dy = exp_well_derivs(x, y, L1, 1 + L1R1, 1 + L0L1, xL1, yL1)
-    WR0_dx, WR0_dy = exp_well_derivs(x, y, R0, 1 + L0R0, 1 + R0R1, xR0, yR0)
-    WR1_dx, WR1_dy = exp_well_derivs(x, y, R1, 1 + L1R1, 1 + R0R1, xR1, yR1)
-    s = 0.3
+    WL0_dx, WL0_dy = exp_well_derivs(x, y, L0, L0R0, L0L1, xL0, yL0)
+    WL1_dx, WL1_dy = exp_well_derivs(x, y, L1, L1R1, L0L1, xL1, yL1)
+    WR0_dx, WR0_dy = exp_well_derivs(x, y, R0, L0R0, R0R1, xR0, yR0)
+    WR1_dx, WR1_dy = exp_well_derivs(x, y, R1, L1R1, R0R1, xR1, yR1)
+    s = 0.03
     s_dx = 4 * s * x ** 3
     s_dy = 4 * s * y ** 3
     fx, fy = (
@@ -515,9 +390,8 @@ def exp_potential_force(x, y, params, scaled_params=True):
 
 
 exp_defaults = (1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, 1, 1, -1, 1, 1)
-exp_wells_2D = Potential(
-    exp_potential, exp_potential_force, 16, 2, default_params=exp_defaults
-)
+exp_domain = (-2,-2),(2,2)
+exp_wells_2D = Potential(exp_potential, exp_potential_force, 16, 2, default_params=exp_defaults, relevant_domain=exp_domain)
 
 
 def even_parity_1D_well(x, params):
@@ -571,7 +445,14 @@ def asym_1D_well(x, params):
     """
 
     a1, a2, k1, k2 = params
-    return np.heaviside(x, 0) * (a1 * x ** 4 + (k1/2) * x ** 2) + np.heaviside(-x, 0) * (a2 * x ** 4 + (k2/2) * x ** 2)
+
+    positive_well = a1 * x ** 4 + (k1/2) * x ** 2
+    negative_well = a2 * x ** 4 + (k2/2) * x ** 2
+
+
+    max_depth = np.max( [k1**2/(16*a1), k2**2/(16*a2)] )
+
+    return max_depth + np.heaviside(x, 0) * positive_well + np.heaviside(-x, 0) * negative_well
 
 
 def asym_1D_well_force(x, params):
